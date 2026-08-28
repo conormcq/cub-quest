@@ -4,7 +4,7 @@ Audio read-along lessons about Irish wildlife, for a pre-reader.
 
 ## Shipped
 
-Ten lessons, twelve cards each — 120 cards, 131 audio clips.
+Fourteen lessons, twelve cards each — 168 cards, 183 audio clips.
 
 | Lesson | Notes |
 |---|---|
@@ -18,6 +18,10 @@ Ten lessons, twelve cards each — 120 cards, 131 audio clips.
 | Stoats | *easóg*, no weasels in Ireland, the black tail tip, the long wait |
 | Frogs | *loscán*, spawn to froglet in fourteen weeks, asleep in pond mud |
 | Moths | 1,500 Irish species, jamming bat sonar, why they circle a lamp |
+| Grey Seals | *rón mór*, 60% fat milk, whisker-tracking, what to do if you find a pup |
+| Puffins | *puifín*, 83 fish at once, the beak that peels, the puffling |
+| Dolphins | the Shannon family, signature whistles, Europe's first sanctuary |
+| Basking Sharks | *liamhán gréine*, 1,500 unused teeth, warm-blooded surprise |
 
 All six are nocturnal or crepuscular, which is why the single night-woodland
 theme works for all of them.
@@ -56,15 +60,19 @@ eight lessons.
 - **Bumblebee**
 - **Butterfly**
 
-## Phase 4 — a seashore chapter
+## Phase 4 — the seashore chapter — **shipped**
 
-A third palette: daylight, blue-green, sand.
+Grey seal, puffin, bottlenose dolphin and basking shark are all in.
 
-- **Grey seal** — Ireland has a large share of the world population
-- **Puffin** — Skellig and the Saltees
-- **Bottlenose dolphin** — the Shannon estuary resident group
-- **Shore crab**
-- **Basking shark** — enormous and completely harmless
+**The theme decision, for the record:** no daylight theme was built. Each card
+already carries its own scene colours — the frog cards have blue water, the sett
+cards brown earth — so a bright sea-and-sky square reads perfectly well on the
+night chrome, like a lit window. It also gives the chapter a visual identity for
+free. A whole second token set would have been days of work for a worse result.
+
+Still open if wanted: **shore crab**, **red squirrel**, **robin**, **rabbit**,
+**bumblebee** — the land daytime animals, which would sit in the same framed-
+daylight style with no theming work either.
 
 ## Exits and accessibility — done
 

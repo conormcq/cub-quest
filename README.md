@@ -43,7 +43,7 @@ toolbars, and it works with the wifi off from then on.
 
 ## Changing it later
 
-Re-upload the changed files, and bump `CACHE` in `sw.js` (`cub-quest-v6` -> `-v7`). Without that bump, iPads keep serving the old cached copy.
+Re-upload the changed files, and bump `CACHE` in `sw.js` (`cub-quest-v6` -> `-v2`). Without that bump, iPads keep serving the old cached copy.
 
 ## What is in here
 

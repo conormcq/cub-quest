@@ -1,7 +1,7 @@
 {
   "name": "Louis's Cub Quest",
   "short_name": "Cub Quest",
-  "description": "Ten Irish wildlife lessons, read out loud for young explorers.",
+  "description": "Badgers, foxes and bats, read out loud.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

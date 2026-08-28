@@ -276,8 +276,22 @@ button:focus-visible,[tabindex]:focus-visible{
   font-size:1.05rem;
   flex:none;
 }
-.progress .moons{display:flex;flex-wrap:wrap;gap:7px;flex:1;}
-.progress .moons span{width:17px;height:17px;flex:none;}
+.progress .bar{
+  height:14px;
+  flex:1;
+  overflow:hidden;
+  border:2px solid var(--night-line);
+  border-radius:999px;
+  background:var(--night-deep);
+}
+.progress .bar span{
+  display:block;
+  width:0;
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,var(--honey-deep),var(--honey));
+  transition:width .28s ease;
+}
 
 .cards{
   width:100%;
@@ -349,10 +363,12 @@ button:focus-visible,[tabindex]:focus-visible{
   inset:0;
   z-index:30;
   background:linear-gradient(178deg,var(--night-deep),var(--night) 58%,#17273F);
-  padding:14px 18px calc(18px + env(safe-area-inset-bottom));
+  padding:calc(14px + env(safe-area-inset-top)) 18px calc(18px + env(safe-area-inset-bottom));
   align-items:center;
   justify-content:flex-start;
   text-align:center;
+  overflow-y:auto;
+  overscroll-behavior:contain;
 }
 #detail.on{display:flex;}
 #detail .detail-top{
@@ -440,6 +456,7 @@ button:focus-visible,[tabindex]:focus-visible{
   gap:clamp(14px,5vw,26px);
   margin-top:auto;
   padding-top:16px;
+  padding-bottom:2px;
 }
 .round{
   width:70px;
@@ -499,10 +516,47 @@ button:focus-visible,[tabindex]:focus-visible{
 .exit:focus-visible{outline:none;}
 .exit:focus-visible .ico{outline:4px solid var(--honey);outline-offset:3px;}
 .exit.home .ico{border-color:var(--night-line);background:var(--night-soft);}
+.exit.sound-toggle .ico{color:var(--moon-dim);}
+.exit.sound-toggle[aria-pressed="true"] .ico{color:var(--berry);}
+.exit.sound-toggle .sound-icon{width:32px;height:32px;display:block;}
+.exit.sound-toggle .sound-icon svg{width:100%;height:100%;display:block;}
+
+/* A returning child can jump back into the last unfinished lesson. */
+.continue-card{
+  display:flex;align-items:center;gap:16px;
+  width:100%;max-width:760px;margin:0 auto 18px;
+  padding:13px 18px 13px 13px;text-align:left;
+  border:3px solid var(--honey-deep);border-radius:var(--r-lg);
+  background:linear-gradient(105deg,rgba(255,194,79,.2),var(--night-soft) 70%);
+  box-shadow:0 10px 24px rgba(0,0,0,.28);
+  transition:transform .18s ease,border-color .18s ease;
+}
+.continue-card[hidden]{display:none;}
+.continue-card .continue-art{width:76px;height:76px;flex:none;}
+.continue-card .continue-art svg{width:100%;height:100%;display:block;}
+.continue-card .continue-copy{min-width:0;flex:1;}
+.continue-card small{display:block;color:var(--honey);font-weight:800;letter-spacing:.08em;text-transform:uppercase;font-size:.68rem;}
+.continue-card b{display:block;font-family:"Grandstander",sans-serif;font-size:1.35rem;line-height:1.08;}
+.continue-card .continue-progress{display:block;color:var(--moon-dim);font-size:.84rem;font-weight:700;margin-top:3px;}
+.continue-card .continue-arrow{font-family:"Grandstander",sans-serif;color:var(--honey);font-size:1.8rem;font-weight:800;}
+.continue-card:hover{transform:translateY(-3px);border-color:var(--honey);}
+.continue-card:active{transform:scale(.98);}
 @media (max-width:380px){
   .exit .ico{width:56px;height:56px;}
   .exit .ico svg{width:28px;height:28px;}
   .exit .lbl{font-size:.6rem;}
+  .continue-card{gap:11px;padding-right:12px;}
+  .continue-card .continue-art{width:64px;height:64px;}
+  .continue-card b{font-size:1.16rem;}
+}
+
+@media (max-height:700px){
+  #detail{padding-top:calc(10px + env(safe-area-inset-top));align-items:center;}
+  .stage{width:min(38vh,190px);margin:8px auto;flex:none;}
+  #detail h2{font-size:clamp(1.5rem,6vw,2rem);}
+  #detail .say{line-height:1.55;font-size:1rem;}
+  .waves{margin-top:7px;}
+  .controls{margin-top:12px;}
 }
 
 /* celebration */
@@ -554,7 +608,7 @@ button:focus-visible,[tabindex]:focus-visible{
     <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#241704" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11V6a2 2 0 0 1 4 0v5"/><path d="M13 11V4.5a2 2 0 0 1 4 0V13"/><path d="M17 12v-1a2 2 0 0 1 4 0v6a5 5 0 0 1-5 5h-2a6 6 0 0 1-6-6v-3l-2.2-2.2a1.8 1.8 0 0 1 2.5-2.5L9 11"/></svg>
     Tap to start!
   </span>
-  <p class="sub">Three animals to find. Everything is read out loud, so there is no reading to do.</p>
+  <p class="sub">Ten animals to discover. Everything is read out loud, so there is no reading to do.</p>
 </main>
 
 <!-- ============ MENU ============ -->
@@ -570,6 +624,11 @@ button:focus-visible,[tabindex]:focus-visible{
     <span class="grow"></span>
     <button class="chip" id="soundToggle" aria-pressed="false"><span id="soundIcon"></span><span id="soundText">Sound on</span></button>
   </div>
+  <button class="continue-card" id="continueCard" hidden>
+    <span class="continue-art" id="continueArt" aria-hidden="true"></span>
+    <span class="continue-copy"><small>Continue exploring</small><b id="continueName"></b><span class="continue-progress" id="continueProgress"></span></span>
+    <span class="continue-arrow" aria-hidden="true">›</span>
+  </button>
   <div class="lessons" id="lessons"></div>
 </main>
 
@@ -588,21 +647,24 @@ button:focus-visible,[tabindex]:focus-visible{
     </button>
   </div>
 
-  <div class="progress">
+  <div class="progress" id="lessonProgress" role="progressbar" aria-label="Lesson progress" aria-valuemin="0" aria-valuemax="12" aria-valuenow="0">
     <span class="count" id="countText">0 / 12</span>
-    <span class="moons" id="moons"></span>
+    <span class="bar" aria-hidden="true"><span id="progressFill"></span></span>
   </div>
 
   <div class="cards" id="cards"></div>
 </main>
 
 <!-- ============ DETAIL ============ -->
-<section id="detail" class="screen" role="dialog" aria-modal="true" aria-label="Badger fact">
+<section id="detail" class="screen" role="dialog" aria-modal="true" aria-labelledby="dTitle">
   <div class="detail-top">
     <button class="exit" id="homeBtn" aria-label="Back to all the pictures" title="Back to the pictures">
       <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"/></svg></span><span class="lbl">Pictures</span>
     </button>
     <span class="spacer"></span>
+    <button class="exit sound-toggle" id="detailSoundToggle" aria-label="Turn sound off" aria-pressed="false" title="Sound on">
+      <span class="ico"><span class="sound-icon"></span></span><span class="lbl sound-text">Sound on</span>
+    </button>
     <button class="exit home" id="detailHome" aria-label="Back to the start" title="Back to the start">
       <span class="ico"><img src="louis.webp" alt="" width="64" height="64"></span><span class="lbl">Start</span>
     </button>
@@ -611,7 +673,7 @@ button:focus-visible,[tabindex]:focus-visible{
   <div class="stage" id="stage"><span class="halo"></span></div>
   <h2 id="dTitle"></h2>
   <p class="say" id="dSay"></p>
-  <p class="grown-note">Sound is switched off. Turn it back on with the button in the corner.</p>
+  <p class="grown-note">Sound is off. Use the Sound button above to turn it back on.</p>
   <div class="waves" id="waves"><i></i><i></i><i></i><i></i><i></i></div>
 
   <div class="controls">
@@ -626,11 +688,11 @@ button:focus-visible,[tabindex]:focus-visible{
 </section>
 
 <!-- ============ PARTY ============ -->
-<div id="party">
+<div id="party" role="dialog" aria-modal="true" aria-labelledby="partyTitle">
   <div>
     <span id="partyArt"></span>
-    <h2>You heard them all!</h2>
-    <p>Twelve secrets learned. Well done, Louis!</p>
+    <h2 id="partyTitle">You found them all!</h2>
+    <p>Twelve secrets discovered. Well done, Louis!</p>
     <div class="party-exits">
       <button class="exit" id="partyBack" aria-label="Back to the list of animals" title="Back to the animals">
         <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg></span><span class="lbl">Animals</span>
@@ -2451,7 +2513,7 @@ function stopSpeaking(){
   try{ player.pause(); }catch(e){}
   setSpeaking(false);
 }
-var MUTED_NOTE="Sound is switched off. Turn it back on with the button in the corner.";
+var MUTED_NOTE="Sound is off. Use the Sound button above to turn it back on.";
 var BLOCKED_NOTE="No sound? Turn the volume up, and check the silent switch on the side of the phone or tablet. Then tap the paw.";
 function note(txt,show){
   var n=document.querySelector("#detail .grown-note");
@@ -2494,8 +2556,27 @@ var $=function(s){return document.getElementById(s);};
 var startEl=$("start"), menuEl=$("menu"), gridEl=$("grid"),
     detailEl=$("detail"), partyEl=$("party"), lessonsEl=$("lessons");
 var stage=$("stage"), waves=$("waves"), dTitle=$("dTitle"), dSay=$("dSay");
-var cardsEl=$("cards"), countText=$("countText"), moonsEl=$("moons");
-var current=-1, heard={}, nudgeTimer=null, lesson=null, welcomed=false;
+var cardsEl=$("cards"), countText=$("countText"), progressEl=$("lessonProgress"), progressFill=$("progressFill");
+var current=-1, heard={}, nudgeTimer=null, lesson=null, welcomed=false, returnFocus=null;
+var PROGRESS_KEY="cub-quest-heard-v1", LAST_LESSON_KEY="cub-quest-last-lesson-v1";
+var lastLessonId="", continueLesson=null;
+
+/* Progress belongs to this device: the installed iPad remembers what Louis
+   has explored without needing an account or an internet connection. */
+try{
+  var savedHeard=JSON.parse(localStorage.getItem(PROGRESS_KEY)||"{}");
+  if(savedHeard && typeof savedHeard==="object"){
+    Object.keys(savedHeard).forEach(function(id){ if(savedHeard[id]===true) heard[id]=true; });
+  }
+  lastLessonId=localStorage.getItem(LAST_LESSON_KEY)||"";
+}catch(e){}
+function saveProgress(){
+  try{ localStorage.setItem(PROGRESS_KEY,JSON.stringify(heard)); }catch(e){}
+}
+function rememberLesson(L){
+  lastLessonId=L.id;
+  try{ localStorage.setItem(LAST_LESSON_KEY,lastLessonId); }catch(e){}
+}
 
 /* icons */
 function moonIcon(filled){
@@ -2518,13 +2599,34 @@ function speakerIcon(on){
     '<path d="M4 9.5h3.4L12 5.5v13l-4.6-4H4z" fill="currentColor" stroke="none"/>'+
     (on?'<path d="M15.5 9.2a4 4 0 0 1 0 5.6"/><path d="M18.2 6.6a7.6 7.6 0 0 1 0 10.8"/>'
        :'<path d="M16.5 9.5l5 5"/><path d="M21.5 9.5l-5 5"/>')+
-    '</svg>';
+      '</svg>';
+}
+
+function renderSoundControls(){
+  var on=!muted, label=on?"Sound on":"Sound off";
+  $("soundIcon").innerHTML=speakerIcon(on);
+  $("soundText").textContent=label;
+  $("soundToggle").setAttribute("aria-pressed",String(muted));
+  $("soundToggle").setAttribute("aria-label",on?"Turn sound off":"Turn sound on");
+  var detailToggle=$("detailSoundToggle");
+  detailToggle.setAttribute("aria-pressed",String(muted));
+  detailToggle.setAttribute("aria-label",on?"Turn sound off":"Turn sound on");
+  detailToggle.title=label;
+  detailToggle.querySelector(".sound-icon").innerHTML=speakerIcon(on);
+  detailToggle.querySelector(".sound-text").textContent=label;
+}
+function toggleSound(){
+  muted=!muted;
+  if(muted) stopSpeaking();
+  renderSoundControls();
+  note(MUTED_NOTE,muted);
+  if(!muted){ audio(); pop(); if(current>=0&&lesson) say(lesson.cards[current].id); }
 }
 
 /* start screen art */
 $("brandArt").innerHTML='<svg viewBox="0 0 200 200" width="46" height="46" aria-hidden="true"></svg>';
 $("replayBtn").innerHTML=pawIcon();
-$("soundIcon").innerHTML=speakerIcon(true);
+renderSoundControls();
 
 /* ---------- the menu of lessons ---------- */
 LESSONS.forEach(function(L){
@@ -2548,15 +2650,36 @@ function refreshMenu(){
     L.el.querySelector(".done i").innerHTML=moonIcon(n===L.cards.length);
     L.el.classList.toggle("complete",n===L.cards.length);
   });
+  refreshContinue();
 }
+
+function refreshContinue(){
+  continueLesson=null;
+  LESSONS.forEach(function(L){ if(L.id===lastLessonId) continueLesson=L; });
+  var card=$("continueCard");
+  if(!continueLesson){ card.hidden=true; return; }
+  var n=0;
+  continueLesson.cards.forEach(function(c){ if(heard[c.id]) n++; });
+  if(n===continueLesson.cards.length){ card.hidden=true; return; }
+  $("continueArt").innerHTML=continueLesson.hero();
+  $("continueName").textContent=continueLesson.name;
+  $("continueProgress").textContent=n+" of "+continueLesson.cards.length+" pictures discovered";
+  card.setAttribute("aria-label","Continue exploring "+continueLesson.name+", "+n+" of "+continueLesson.cards.length+" pictures discovered");
+  card.hidden=false;
+}
+
+$("continueCard").addEventListener("click",function(){
+  if(continueLesson){ pop(); openLesson(continueLesson); }
+});
 
 /* ---------- opening a lesson ---------- */
 function openLesson(L){
   lesson=L;
+  rememberLesson(L);
   $("lessonName").textContent=L.name;
   $("brandArt").innerHTML=L.hero();
   $("partyArt").innerHTML=L.hero();
-  cardsEl.innerHTML=""; moonsEl.innerHTML="";
+  cardsEl.innerHTML="";
   L.cards.forEach(function(f,i){
     var b=document.createElement("button");
     b.className="card";
@@ -2567,9 +2690,6 @@ function openLesson(L){
                 '<span class="label">'+f.title+'</span>';
     b.addEventListener("click",function(){ pop(); open(i); });
     cardsEl.appendChild(b);
-    var sp=document.createElement("span");
-    sp.innerHTML=moonIcon(false);
-    moonsEl.appendChild(sp);
   });
   refreshProgress();
   show(gridEl);
@@ -2585,12 +2705,15 @@ function refreshProgress(){
   var cards=lesson.cards, n=0, i;
   for(i=0;i<cards.length;i++) if(heard[cards[i].id]) n++;
   countText.textContent=n+" / "+cards.length;
-  var els=cardsEl.children, moonSpans=moonsEl.children;
+  progressEl.setAttribute("aria-valuemax",String(cards.length));
+  progressEl.setAttribute("aria-valuenow",String(n));
+  progressEl.setAttribute("aria-valuetext",n+" of "+cards.length+" pictures discovered");
+  progressFill.style.width=((n/cards.length)*100)+"%";
+  var els=cardsEl.children;
   for(i=0;i<cards.length;i++){
     var got=!!heard[cards[i].id];
     els[i].classList.toggle("heard",got);
     els[i].querySelector(".moon-mark").innerHTML=moonIcon(got);
-    moonSpans[i].innerHTML=moonIcon(got);
   }
   refreshMenu();
   return n;
@@ -2603,6 +2726,7 @@ function show(el){
 
 function open(i){
   if(!lesson) return;
+  if(!detailEl.classList.contains("on")) returnFocus=document.activeElement;
   current=i;
   var f=lesson.cards[i];
   clearTimeout(nudgeTimer);
@@ -2610,6 +2734,7 @@ function open(i){
   stage.innerHTML='<span class="halo"></span>'+SCENES[f.id]();
   dTitle.textContent=f.title;
   renderWords(f.id);
+  gridEl.inert=true;
   detailEl.classList.add("on");
   if(muted) note(MUTED_NOTE,true); else if(!blocked) note(MUTED_NOTE,false);
   $("prevBtn").disabled=(i===0);
@@ -2617,16 +2742,21 @@ function open(i){
   say(f.id,function(){
     var was=!!heard[f.id];
     heard[f.id]=true;
+    saveProgress();
     var n=refreshProgress();
     if(!was) chime();
     if(n===lesson.cards.length) setTimeout(celebrate,700);
   });
-  if(muted){ heard[f.id]=true; refreshProgress(); }
+  if(muted){ heard[f.id]=true; saveProgress(); refreshProgress(); }
+  requestAnimationFrame(function(){ $("replayBtn").focus({preventScroll:true}); });
 }
 function close(){
   stopSpeaking();
   detailEl.classList.remove("on");
+  gridEl.inert=false;
   current=-1;
+  if(returnFocus && returnFocus.focus) returnFocus.focus({preventScroll:true});
+  returnFocus=null;
 }
 function step(d){
   if(!lesson) return;
@@ -2638,8 +2768,10 @@ function celebrate(){
   stopSpeaking();
   detailEl.classList.remove("on");
   partyEl.classList.add("on");
+  gridEl.inert=true;
   partyEl.style.setProperty("--tint",lesson.tint);
   fanfare();
+  requestAnimationFrame(function(){ $("againBtn").focus({preventScroll:true}); });
   setTimeout(function(){ say(lesson.party); },700);
 }
 
@@ -2659,6 +2791,8 @@ $("wake").addEventListener("click",function(){
 function goHome(){
   pop(); stopSpeaking(); clearTimeout(nudgeTimer);
   lesson=null; current=-1;
+  returnFocus=null;
+  gridEl.inert=false;
   detailEl.classList.remove("on"); partyEl.classList.remove("on");
   show(startEl); window.scrollTo(0,0);
 }
@@ -2667,8 +2801,9 @@ function goHome(){
 });
 $("partyBack").addEventListener("click",function(){
   pop(); stopSpeaking();
+  gridEl.inert=false;
   partyEl.classList.remove("on");
-  lesson=null; current=-1; show(menuEl); window.scrollTo(0,0);
+  lesson=null; current=-1; returnFocus=null; show(menuEl); window.scrollTo(0,0);
 });
 
 $("menuBtn").addEventListener("click",function(){
@@ -2686,19 +2821,15 @@ $("replayBtn").addEventListener("click",function(){
 $("againBtn").addEventListener("click",function(){
   stopSpeaking();
   if(lesson) lesson.cards.forEach(function(c){ delete heard[c.id]; });
+  saveProgress();
   refreshProgress();
+  gridEl.inert=false;
   partyEl.classList.remove("on");
+  returnFocus=null;
   pop();
+  if(cardsEl.firstElementChild) cardsEl.firstElementChild.focus({preventScroll:true});
 });
-$("soundToggle").addEventListener("click",function(){
-  muted=!muted;
-  if(muted) stopSpeaking();
-  this.setAttribute("aria-pressed",String(muted));
-  $("soundIcon").innerHTML=speakerIcon(!muted);
-  $("soundText").textContent=muted?"Sound off":"Sound on";
-  note(MUTED_NOTE,muted);
-  if(!muted){ audio(); pop(); if(current>=0&&lesson) say(lesson.cards[current].id); }
-});
+[$("soundToggle"),$("detailSoundToggle")].forEach(function(b){ b.addEventListener("click",toggleSound); });
 
 document.addEventListener("keydown",function(e){
   if(detailEl.classList.contains("on")){
@@ -2709,7 +2840,7 @@ document.addEventListener("keydown",function(e){
   }
   /* Escape steps outward from wherever you are, so there is always a way out */
   if(e.key!=="Escape") return;
-  if(partyEl.classList.contains("on")){ partyEl.classList.remove("on"); lesson=null; show(menuEl); }
+  if(partyEl.classList.contains("on")){ stopSpeaking(); gridEl.inert=false; partyEl.classList.remove("on"); lesson=null; show(menuEl); }
   else if(gridEl.classList.contains("on")){ lesson=null; show(menuEl); }
   else if(menuEl.classList.contains("on")){ goHome(); }
 });

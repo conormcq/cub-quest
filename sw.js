@@ -1,6 +1,6 @@
 /* Offline cache for Cub Quest.
    Bump CACHE when the site changes, so iPads pick up the new version. */
-const CACHE = "cub-quest-v5";
+const CACHE = "cub-quest-v6";
 const ASSETS = [
   "./",
   "index.html",

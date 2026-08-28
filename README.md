@@ -38,12 +38,12 @@ and `/ (root)`, then **Save**. A minute later the site is at
 2. Let it finish loading once, on wifi. That is when it stores itself for offline use.
 3. Share button -> **Add to Home Screen**.
 
-You get a Louis icon named "Animal Lessons". It opens full screen with no browser
+You get a Louis icon named "Cub Quest". It opens full screen with no browser
 toolbars, and it works with the wifi off from then on.
 
 ## Changing it later
 
-Re-upload the changed files, and bump `CACHE` in `sw.js` (`cub-quest-v1` -> `-v2`). Without that bump, iPads keep serving the old cached copy.
+Re-upload the changed files, and bump `CACHE` in `sw.js` (`cub-quest-v4` -> `-v2`). Without that bump, iPads keep serving the old cached copy.
 
 ## What is in here
 

@@ -1,6 +1,6 @@
 /* Offline cache for Cub Quest.
    Bump CACHE when the site changes, so iPads pick up the new version. */
-const CACHE = "cub-quest-v6";
+const CACHE = "cub-quest-v8";
 const ASSETS = [
   "./",
   "index.html",
@@ -11,7 +11,6 @@ const ASSETS = [
   "icon-512.png",
   "fonts/grandstander.woff2",
   "fonts/nunito.woff2",
-  "audio/welcome.mp3",
   "audio/hello.mp3",
   "audio/stripes.mp3",
   "audio/night.mp3",

@@ -1363,42 +1363,45 @@ function seal(cx,cy,s,opts){
 function puffin(cx,cy,s,opts){
   opts=opts||{};
   function P(x,y){return (cx+x*s)+" "+(cy+y*s);}
-  var o='<g>';
-  o+='<path d="M '+P(-40,10)+' Q '+P(-46,60)+' '+P(0,78)+' Q '+P(46,60)+' '+P(40,10)+
-     ' Q '+P(24,-30)+' '+P(0,-30)+' Q '+P(-24,-30)+' '+P(-40,10)+' Z" fill="'+PELT+'"/>';
-  o+='<path d="M '+P(-24,18)+' Q '+P(-26,56)+' '+P(0,70)+' Q '+P(26,56)+' '+P(24,18)+
-     ' Q '+P(0,6)+' '+P(-24,18)+' Z" fill="'+CREAM+'"/>';
-  o+='<path d="M '+P(-38,-8)+' Q '+P(-30,-34)+' '+P(0,-34)+' Q '+P(30,-34)+' '+P(38,-8)+
-     ' Q '+P(20,6)+' '+P(0,6)+' Q '+P(-20,6)+' '+P(-38,-8)+' Z" fill="'+CREAM+'"/>';
-  o+='<path d="M '+P(-40,-14)+' Q '+P(-24,-44)+' '+P(0,-44)+' Q '+P(24,-44)+' '+P(40,-14)+
-     ' Q '+P(20,-30)+' '+P(0,-30)+' Q '+P(-20,-30)+' '+P(-40,-14)+' Z" fill="'+PELT+'"/>';
+  var back=opts.puffling?"#59616D":PELT, face=opts.puffling?"#C7C3B7":CREAM;
+  var o=opts.flip?'<g transform="translate('+(2*cx)+' 0) scale(-1 1)">':'<g>';
+  /* A side-on Atlantic puffin silhouette: round body, dark cap, white cheek
+     and a clearly projecting painted beak. */
+  if(opts.wings){
+    o+='<path d="M '+P(-14,8)+' Q '+P(-50,-34)+' '+P(-30,-72)+' Q '+P(2,-46)+' '+P(14,10)+' Z" fill="'+back+'"/>';
+    o+='<path d="M '+P(-12,20)+' Q '+P(-62,40)+' '+P(-66,72)+' Q '+P(-18,58)+' '+P(14,28)+' Z" fill="#30343E"/>';
+  }
+  o+='<path d="M '+P(-44,46)+' Q '+P(-58,60)+' '+P(-68,54)+' Q '+P(-56,44)+' '+P(-42,36)+' Z" fill="'+back+'"/>';
+  o+='<path d="M '+P(-40,4)+' Q '+P(-48,48)+' '+P(-12,78)+' Q '+P(28,72)+' '+P(34,28)+
+     ' Q '+P(34,0)+' '+P(10,-8)+' Q '+P(-24,-14)+' '+P(-40,4)+' Z" fill="'+back+'"/>';
+  o+='<path d="M '+P(-6,6)+' Q '+P(30,4)+' '+P(30,34)+' Q '+P(22,68)+' '+P(-10,70)+
+     ' Q '+P(6,42)+' '+P(-6,6)+' Z" fill="'+face+'"/>';
+  if(!opts.wings) o+='<path d="M '+P(-28,10)+' Q '+P(-56,30)+' '+P(-34,64)+' Q '+P(-6,54)+' '+P(2,22)+' Z" fill="#30343E"/>';
+  o+='<ellipse cx="'+(cx+4*s)+'" cy="'+(cy-28*s)+'" rx="'+(36*s)+'" ry="'+(34*s)+'" fill="'+back+'"/>';
+  o+='<path d="M '+P(-2,-54)+' Q '+P(27,-54)+' '+P(34,-30)+' Q '+P(34,-7)+' '+P(10,4)+
+     ' Q '+P(-6,-10)+' '+P(-2,-54)+' Z" fill="'+face+'"/>';
+  o+='<path d="M '+P(3,-54)+' Q '+P(25,-60)+' '+P(35,-42)+'" stroke="#404550" stroke-width="'+(3*s)+'" fill="none" opacity=".55"/>';
   if(opts.closed){
-    o+='<path d="M '+P(-20,-12)+' q '+(5*s)+' '+(5*s)+' '+(10*s)+' 0" stroke="'+PELT+'" stroke-width="'+(3*s)+'" fill="none" stroke-linecap="round"/>';
-    o+='<path d="M '+P(10,-12)+' q '+(5*s)+' '+(5*s)+' '+(10*s)+' 0" stroke="'+PELT+'" stroke-width="'+(3*s)+'" fill="none" stroke-linecap="round"/>';
+    o+='<path d="M '+P(10,-34)+' q '+(7*s)+' '+(6*s)+' '+(14*s)+' 0" stroke="'+PELT+'" stroke-width="'+(3*s)+'" fill="none" stroke-linecap="round"/>';
   }else{
-    o+='<circle cx="'+(cx-15*s)+'" cy="'+(cy-12*s)+'" r="'+(6.5*s)+'" fill="'+PELT+'"/>';
-    o+='<circle cx="'+(cx+15*s)+'" cy="'+(cy-12*s)+'" r="'+(6.5*s)+'" fill="'+PELT+'"/>';
-    o+='<circle cx="'+(cx-13*s)+'" cy="'+(cy-15*s)+'" r="'+(2.4*s)+'" fill="'+CREAM+'"/>';
-    o+='<circle cx="'+(cx+17*s)+'" cy="'+(cy-15*s)+'" r="'+(2.4*s)+'" fill="'+CREAM+'"/>';
+    o+='<circle cx="'+(cx+17*s)+'" cy="'+(cy-35*s)+'" r="'+(8*s)+'" fill="'+PUF_OR+'" opacity=".85"/>';
+    o+='<circle cx="'+(cx+17*s)+'" cy="'+(cy-35*s)+'" r="'+(5*s)+'" fill="'+PELT+'"/>';
+    o+='<circle cx="'+(cx+19*s)+'" cy="'+(cy-37*s)+'" r="'+(1.8*s)+'" fill="'+CREAM+'"/>';
+    o+='<path d="M '+P(15,-43)+' l '+(11*s)+' '+(-7*s)+'" stroke="'+PELT+'" stroke-width="'+(2.4*s)+'" stroke-linecap="round" opacity=".7"/>';
   }
   /* the beak: grey in winter, three colours in summer */
-  var beak = "M "+P(-2,-4)+" Q "+P(-26,0)+" "+P(-24,16)+" Q "+P(-12,32)+" "+P(2,32)+
-             " Q "+P(16,32)+" "+P(26,16)+" Q "+P(28,0)+" "+P(-2,-4)+" Z";
-  if(opts.winter){
+  var beak = "M "+P(31,-29)+" Q "+P(55,-27)+" "+P(73,-10)+" Q "+P(57,6)+" "+P(31,3)+" Z";
+  if(opts.winter||opts.puffling){
     o+='<path d="'+beak+'" fill="'+BFGREY+'"/>';
   }else{
-    var bid=nid();
-    o+='<clipPath id="'+bid+'"><path d="'+beak+'"/></clipPath>';
     o+='<path d="'+beak+'" fill="'+PUF_OR+'"/>';
-    o+='<g clip-path="url(#'+bid+')">';
-    o+='<rect x="'+(cx-30*s)+'" y="'+(cy-10*s)+'" width="'+(15*s)+'" height="'+(48*s)+'" fill="'+PUF_B+'"/>';
-    o+='<rect x="'+(cx-15*s)+'" y="'+(cy-10*s)+'" width="'+(11*s)+'" height="'+(48*s)+'" fill="'+PUF_Y+'"/>';
-    o+='</g>';
-    o+='<path d="M '+P(-2,-2)+' Q '+P(6,14)+' '+P(0,30)+'" stroke="'+PELT+'" stroke-width="'+(1.6*s)+'" fill="none" opacity=".3"/>';
+    o+='<path d="M '+P(31,-29)+' Q '+P(40,-28)+' '+P(43,-25)+' L '+P(43,4)+' Q '+P(36,4)+' '+P(31,3)+' Z" fill="'+PUF_B+'"/>';
+    o+='<path d="M '+P(43,-25)+' Q '+P(52,-23)+' '+P(57,-18)+' L '+P(55,5)+' Q '+P(49,7)+' '+P(43,4)+' Z" fill="'+PUF_Y+'"/>';
+    o+='<path d="M '+P(34,-10)+' Q '+P(53,-5)+' '+P(70,-10)+'" stroke="'+PELT+'" stroke-width="'+(1.8*s)+'" fill="none" opacity=".5"/>';
   }
   if(opts.feet){
-    o+='<path d="M '+P(-16,74)+' l '+(-10*s)+' '+(12*s)+' l '+(20*s)+' 0 Z" fill="'+PUF_OR+'"/>';
-    o+='<path d="M '+P(16,74)+' l '+(-10*s)+' '+(12*s)+' l '+(20*s)+' 0 Z" fill="'+PUF_OR+'"/>';
+    o+='<path d="M '+P(-20,69)+' l '+(-4*s)+' '+(13*s)+' l '+(-13*s)+' '+(7*s)+' h '+(30*s)+' l '+(-6*s)+' '+(-18*s)+' Z" fill="'+PUF_OR+'"/>';
+    o+='<path d="M '+P(10,70)+' l '+(2*s)+' '+(12*s)+' l '+(-9*s)+' '+(8*s)+' h '+(29*s)+' l '+(-12*s)+' '+(-19*s)+' Z" fill="'+PUF_OR+'"/>';
   }
   o+='</g>';
   return o;
@@ -1413,21 +1416,36 @@ function sandeel(x,y,sc,rot){
 function dolphin(cx,cy,s,opts){
   opts=opts||{};
   function P(x,y){return (cx+x*s)+" "+(cy+y*s);}
-  var o='<g>';
-  o+='<path d="M '+P(-86,6)+' Q '+P(-40,-30)+' '+P(20,-22)+' Q '+P(64,-14)+' '+P(88,2)+
-     ' L '+P(66,10)+' Q '+P(30,32)+' '+P(-20,26)+' Q '+P(-62,20)+' '+P(-86,6)+' Z" fill="'+DOL+'"/>';
-  o+='<path d="M '+P(-40,18)+' Q '+P(6,30)+' '+P(52,12)+' Q '+P(6,22)+' '+P(-40,18)+' Z" fill="'+DOL_CR+'" opacity=".7"/>';
-  o+='<path d="M '+P(-6,-22)+' Q '+P(-2,-56)+' '+P(28,-50)+' Q '+P(14,-34)+' '+P(16,-21)+' Z" fill="'+DOL_DK+'"/>';
-  o+='<path d="M '+P(-86,6)+' Q '+P(-108,-16)+' '+P(-120,4)+' Q '+P(-106,22)+' '+P(-86,6)+' Z" fill="'+DOL_DK+'"/>';
-  o+='<path d="M '+P(-16,24)+' Q '+P(-24,48)+' '+P(-46,50)+' Q '+P(-28,34)+' '+P(-24,24)+' Z" fill="'+DOL_DK+'"/>';
-  o+='<path d="M '+P(88,2)+' Q '+P(104,0)+' '+P(112,6)+' Q '+P(102,10)+' '+P(86,8)+' Z" fill="'+DOL_DK+'"/>';
-  o+='<circle cx="'+(cx+58*s)+'" cy="'+(cy-6*s)+'" r="'+(5*s)+'" fill="'+PELT+'"/>';
-  o+='<circle cx="'+(cx+60*s)+'" cy="'+(cy-8*s)+'" r="'+(1.8*s)+'" fill="'+CREAM+'"/>';
-  o+='<path d="M '+P(72,4)+' q '+(8*s)+' '+(4*s)+' '+(14*s)+' '+(2*s)+'" stroke="'+DOL_DK+'" stroke-width="'+(2.4*s)+'" fill="none" stroke-linecap="round"/>';
+  var o=opts.flip?'<g transform="translate('+(2*cx)+' 0) scale(-1 1)">':'<g>';
+  /* Paired tail flukes, a curved back and a rounded melon make the
+     bottlenose silhouette readable even at the smallest card size. */
+  o+='<path d="M '+P(-82,3)+' Q '+P(-106,-13)+' '+P(-132,-7)+' Q '+P(-114,6)+' '+P(-91,11)+
+     ' Q '+P(-111,20)+' '+P(-128,35)+' Q '+P(-102,34)+' '+P(-80,14)+' Z" fill="'+DOL_DK+'"/>';
+  o+='<path d="M '+P(-86,4)+' C '+P(-58,-22)+' '+P(-10,-35)+' '+P(35,-27)+
+     ' C '+P(57,-24)+' '+P(72,-14)+' '+P(78,-3)+
+     ' C '+P(86,-5)+' '+P(103,-4)+' '+P(116,1)+
+     ' C '+P(104,9)+' '+P(90,12)+' '+P(77,11)+
+     ' C '+P(61,29)+' '+P(28,38)+' '+P(-10,33)+
+     ' C '+P(-46,29)+' '+P(-72,17)+' '+P(-86,4)+' Z" fill="'+DOL+'"/>';
+  o+='<path d="M '+P(-48,20)+' C '+P(-10,35)+' '+P(39,31)+' '+P(72,11)+
+     ' C '+P(50,38)+' '+P(3,45)+' '+P(-42,27)+' Z" fill="'+DOL_CR+'" opacity=".82"/>';
+  o+='<path d="M '+P(-18,-29)+' Q '+P(-10,-61)+' '+P(18,-58)+' Q '+P(8,-39)+' '+P(15,-25)+' Z" fill="'+DOL_DK+'"/>';
+  o+='<path d="M '+P(-10,29)+' Q '+P(-16,54)+' '+P(-43,59)+' Q '+P(-27,42)+' '+P(-22,28)+' Z" fill="'+DOL_DK+'"/>';
+  o+='<path d="M '+P(76,-3)+' Q '+P(91,-8)+' '+P(116,1)+' Q '+P(99,8)+' '+P(77,11)+' Z" fill="'+DOL+'"/>';
+  if(opts.closed){
+    o+='<path d="M '+P(50,-10)+' q '+(7*s)+' '+(5*s)+' '+(13*s)+' 0" stroke="'+DOL_DK+'" stroke-width="'+(2.6*s)+'" fill="none" stroke-linecap="round"/>';
+  }else{
+    o+='<circle cx="'+(cx+56*s)+'" cy="'+(cy-10*s)+'" r="'+(4.6*s)+'" fill="'+PELT+'"/>';
+    o+='<circle cx="'+(cx+58*s)+'" cy="'+(cy-12*s)+'" r="'+(1.6*s)+'" fill="'+CREAM+'"/>';
+  }
+  o+='<path d="M '+P(78,5)+' Q '+P(88,11)+' '+P(101,7)+'" stroke="'+DOL_DK+'" stroke-width="'+(2.2*s)+'" fill="none" stroke-linecap="round"/>';
+  o+='<ellipse cx="'+(cx+17*s)+'" cy="'+(cy-27*s)+'" rx="'+(5*s)+'" ry="'+(2.6*s)+'" fill="'+DOL_DK+'"/>';
   if(opts.blow){
-    o+='<ellipse cx="'+(cx+22*s)+'" cy="'+(cy-24*s)+'" rx="'+(5*s)+'" ry="'+(3*s)+'" fill="'+DOL_DK+'"/>';
-    o+='<g fill="'+CREAM+'" opacity=".8"><circle cx="'+(cx+22*s)+'" cy="'+(cy-44*s)+'" r="'+(6*s)+'"/>'+
-       '<circle cx="'+(cx+30*s)+'" cy="'+(cy-58*s)+'" r="'+(4*s)+'"/></g>';
+    o+='<g fill="none" stroke="'+CREAM+'" stroke-width="'+(3.2*s)+'" stroke-linecap="round" opacity=".82">'+
+       '<path d="M '+P(17,-34)+' Q '+P(4,-49)+' '+P(7,-63)+'"/>'+
+       '<path d="M '+P(18,-35)+' Q '+P(31,-50)+' '+P(30,-64)+'"/></g>'+
+       '<g fill="'+CREAM+'" opacity=".75"><circle cx="'+(cx+5*s)+'" cy="'+(cy-68*s)+'" r="'+(3*s)+'"/>'+
+       '<circle cx="'+(cx+33*s)+'" cy="'+(cy-69*s)+'" r="'+(3.6*s)+'"/></g>';
   }
   o+='</g>';
   return o;
@@ -1520,19 +1538,19 @@ var SCENES={
       '<path d="M0 112 Q 50 104 100 110 T 200 112 L200 200 L0 200 Z" fill="#5E7F4E"/>'+
       puffin(100,90,1.02,{feet:true})); },
   pf_beak:function(){ return svg(seaScene(150,false)+
-      puffin(56,96,0.82,{})+puffin(146,96,0.82,{winter:true})+
+      puffin(48,98,0.72,{})+puffin(152,98,0.72,{winter:true,flip:true})+
       '<path d="M100 34 v130" stroke="'+CREAM+'" stroke-width="2.4" stroke-dasharray="6 8" opacity=".45"/>'); },
   pf_fish:function(){ return svg(seaScene(120)+
       '<path d="M0 120 Q 50 112 100 118 T 200 120 L200 200 L0 200 Z" fill="#5E7F4E"/>'+
-      puffin(100,84,0.92,{feet:true})+
-      sandeel(58,116,0.85,-8)+sandeel(142,116,0.85,8)+sandeel(70,128,0.7,-4)+sandeel(132,128,0.7,6)); },
+      puffin(94,88,0.88,{feet:true})+
+      sandeel(151,76,0.56,-8)+sandeel(150,84,0.52,8)+sandeel(58,126,0.72,-4)); },
   pf_fly:function(){ return svg(seaScene(150)+
-      puffin(96,86,0.86,{})+
+      '<g transform="rotate(-10 96 92)">'+puffin(96,92,0.78,{wings:true})+'</g>'+
       '<g stroke="'+CREAM+'" stroke-width="4" stroke-linecap="round" opacity=".6">'+
       '<path d="M32 70 q14 -10 26 -4"/><path d="M26 92 q16 -10 28 -4"/>'+
       '<path d="M142 70 q14 -10 26 -4"/><path d="M148 92 q16 -10 28 -4"/></g>'); },
   pf_swim:function(){ return svg(seaScene(26)+
-      '<g transform="rotate(28 100 108)">'+puffin(100,108,0.86,{})+'</g>'+
+      '<g transform="rotate(34 92 108)">'+puffin(92,108,0.76,{wings:true})+'</g>'+
       '<g fill="'+SEA_LT+'" opacity=".8"><circle cx="52" cy="60" r="6"/><circle cx="38" cy="42" r="4"/></g>'+
       sandeel(166,158,0.8,14)); },
   pf_burrow:function(){ return svg(seaScene(70,false)+
@@ -1551,7 +1569,7 @@ var SCENES={
   pf_puffling:function(){ return svg(seaScene(64,false)+
       '<path d="M0 64 Q 50 56 100 62 T 200 64 L200 200 L0 200 Z" fill="#5E7F4E"/>'+
       '<ellipse cx="112" cy="136" rx="54" ry="40" fill="#3A4A32"/>'+
-      '<g transform="translate(0 6)">'+puffin(112,132,0.4,{})+'</g>'+
+      '<g transform="translate(0 6)">'+puffin(112,132,0.4,{puffling:true})+'</g>'+
       puffin(44,102,0.44,{})+sandeel(74,116,0.6,20)); },
   pf_sea:function(){ return svg(seaScene(96)+
       puffin(100,74,0.5,{})+
@@ -1561,7 +1579,7 @@ var SCENES={
       '<g fill="'+CREAM+'" opacity=".35"><circle cx="30" cy="164" r="4"/><circle cx="172" cy="176" r="3.4"/></g>'); },
   pf_pair:function(){ return svg(seaScene(120)+
       '<path d="M0 120 Q 50 112 100 118 T 200 120 L200 200 L0 200 Z" fill="#5E7F4E"/>'+
-      puffin(62,92,0.78,{feet:true})+puffin(138,92,0.78,{feet:true})+
+      puffin(58,94,0.72,{feet:true})+puffin(142,94,0.72,{feet:true,flip:true})+
       '<g fill="'+BERRY+'" opacity=".8"><circle cx="100" cy="46" r="7"/><circle cx="112" cy="34" r="5"/></g>'); },
   pf_monk:function(){ return svg(seaScene(112,false)+
       rock(100,150,1.5)+
@@ -1588,7 +1606,7 @@ var SCENES={
       '<path d="M168 58 q34 50 0 96" opacity=".32"/></g>'+
       fish(184,146,0.6,"#9BC3D8")); },
   dl_sleep:function(){ return svg(seaScene(110)+
-      dolphin(96,146,0.72,{})+
+      dolphin(96,146,0.72,{closed:true})+
       '<g fill="'+CREAM+'" opacity=".8"><circle cx="150" cy="52" r="8"/><circle cx="166" cy="34" r="5"/></g>'+
       '<path d="M40 60 h30 M40 74 h22" stroke="'+CREAM+'" stroke-width="4" stroke-linecap="round" opacity=".45"/>'); },
   dl_breathe:function(){ return svg(seaScene(88)+dolphin(92,132,0.78,{blow:true})); },
@@ -2931,7 +2949,7 @@ var startEl=$("start"), menuEl=$("menu"), gridEl=$("grid"),
     detailEl=$("detail"), partyEl=$("party"), lessonsEl=$("lessons");
 var stage=$("stage"), waves=$("waves"), dTitle=$("dTitle"), dSay=$("dSay");
 var cardsEl=$("cards"), countText=$("countText"), moonsEl=$("moons");
-var current=-1, heard={}, nudgeTimer=null, lesson=null, welcomed=false;
+var current=-1, heard={}, nudgeTimer=null, lesson=null;
 
 /* icons */
 function moonIcon(filled){
@@ -3085,9 +3103,6 @@ $("wake").addEventListener("click",function(){
   pop();
   show(menuEl);
   window.scrollTo(0,0);
-  /* Called straight from the tap so the browser unlocks audio for the rest
-     of the visit. Everything afterwards reuses this same element. */
-  if(!welcomed){ welcomed=true; say("welcome"); }
 });
 
 /* Louis is the way home from anywhere: the one picture a non-reader

@@ -78,6 +78,33 @@ into the template rather than overwrite it.
 
 Newest first. Append, don't rewrite.
 
+### 2026-08-28 — Codex — removed start-screen welcome narration
+- Tapping Louis still unlocks audio, plays the short interface pop, and opens
+  the animal menu, but no longer plays “Tonight Louis, we can learn about…”.
+- Removed the welcome clip from the service-worker precache. The existing MP3
+  and dormant clip mapping remain on disk, making this change non-destructive.
+- `CACHE` → `cub-quest-v8`.
+- **Generator carry-forward required:** remove the start-tap `say("welcome")`
+  call and welcome precache entry from the absent source template/build script
+  before the next generated-file sync.
+
+### 2026-08-28 — Codex — puffin and dolphin illustration polish
+- Reworked the reusable puffin into a clearer Atlantic puffin side profile:
+  rounded body, white cheek, orange eye ring, layered blue/yellow/orange beak,
+  webbed feet, folded and flying wing poses, winter beak, and a distinct grey
+  puffling treatment. Puffin pairs now face each other and the fish card places
+  fish at the beak.
+- Reworked the reusable bottlenose dolphin silhouette with a rounded forehead,
+  projecting bottle-shaped beak, paired tail flukes, curved dorsal and pectoral
+  fins, pale underside, visible blowhole, water spout, and a closed-eye sleep
+  state.
+- `CACHE` → `cub-quest-v7`.
+- **Generator carry-forward required:** this checkout does not contain the
+  `animal-lessons.tpl.html` or `build_pages.py` files named above, so the edits
+  were necessarily applied to generated `index.html`. Copy the updated
+  `puffin()` and `dolphin()` functions plus the `pf_*` / `dl_sleep` scene-option
+  changes into the source template before the next generated-file sync.
+
 ### 2026-08-28 — Claude — coastal chapter **shipped**
 - Lessons 11–14: grey seal, puffin, bottlenose dolphin, basking shark.
   48 cards, 52 clips. Now **14 lessons / 168 cards / 183 clips**.

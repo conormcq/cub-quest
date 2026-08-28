@@ -1,6 +1,6 @@
 /* Offline cache for Louis's Animal Lessons.
    Bump CACHE when the site changes, so iPads pick up the new version. */
-const CACHE = "animal-lessons-v1";
+const CACHE = "cub-quest-v1";
 const ASSETS = [
   "./",
   "index.html",

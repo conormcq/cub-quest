@@ -357,10 +357,12 @@ button:focus-visible,[tabindex]:focus-visible{
 #detail.on{display:flex;}
 #detail .detail-top{
   display:flex;
-  align-items:center;
+  align-items:flex-start;
   gap:10px;
   width:100%;
   max-width:620px;
+  position:relative;
+  z-index:2;
 }
 #detail .detail-top .spacer{margin-left:auto;}
 .stage{
@@ -466,12 +468,50 @@ button:focus-visible,[tabindex]:focus-visible{
 .round.small{width:48px;height:48px;}
 .round.small svg{width:24px;height:24px;}
 
+/* ============================================================
+   EXITS — the way out of anything.
+   Two controls, same meaning and same place on every screen:
+   the arrow steps back one level, Louis goes all the way home.
+   Sized for a small child's finger, and labelled for the adult.
+   ============================================================ */
+.exit{
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  flex:none;background:none;border:0;padding:2px;
+}
+.exit .ico{
+  width:64px;height:64px;border-radius:50%;
+  display:grid;place-items:center;overflow:hidden;
+  background:var(--night-soft);
+  border:3px solid var(--night-line);
+  box-shadow:0 6px 16px rgba(0,0,0,.35);
+  transition:transform .16s ease,border-color .16s ease,background .16s ease;
+}
+.exit .ico svg{width:32px;height:32px;}
+.exit .ico img{width:100%;height:100%;object-fit:cover;display:block;}
+.exit .lbl{
+  font-family:"Grandstander",sans-serif;font-weight:800;
+  font-size:.66rem;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--moon-dim);transition:color .16s ease;
+}
+.exit:hover .ico{border-color:var(--honey);transform:translateY(-2px);}
+.exit:hover .lbl{color:var(--moon);}
+.exit:active .ico{transform:scale(.92);}
+.exit:focus-visible{outline:none;}
+.exit:focus-visible .ico{outline:4px solid var(--honey);outline-offset:3px;}
+.exit.home .ico{border-color:var(--night-line);background:var(--night-soft);}
+@media (max-width:380px){
+  .exit .ico{width:56px;height:56px;}
+  .exit .ico svg{width:28px;height:28px;}
+  .exit .lbl{font-size:.6rem;}
+}
+
 /* celebration */
 #party{position:fixed;inset:0;z-index:60;display:none;place-items:center;text-align:center;padding:24px;background:rgba(10,18,32,.93);}
 #party.on{display:grid;}
 #party h2{font-size:clamp(2rem,9vw,3.2rem);color:var(--tint,var(--honey));}
 #party p{color:var(--moon-dim);max-width:26ch;margin:12px auto 22px;font-weight:600;}
-#party svg{width:min(48vw,190px);height:auto;margin-bottom:8px;}
+#partyArt svg{width:min(44vw,175px);height:auto;margin-bottom:8px;}
+#party .party-exits{display:flex;align-items:center;justify-content:center;gap:clamp(14px,5vw,26px);}
 #party .again{
   background:var(--honey);
   color:#241704;
@@ -520,7 +560,9 @@ button:focus-visible,[tabindex]:focus-visible{
 <!-- ============ MENU ============ -->
 <main id="menu" class="screen">
   <div class="menu-head">
-    <button class="face-btn" id="menuHome" aria-label="Back to the start"><img class="face" src="louis.webp" alt="Louis" width="66" height="66"></button>
+    <button class="exit home" id="menuHome" aria-label="Back to the start" title="Back to the start">
+      <span class="ico"><img src="louis.webp" alt="Louis" width="64" height="64"></span><span class="lbl">Start</span>
+    </button>
     <span>
       <h2 class="display">Which animal?</h2>
       <p>Tap a picture to start a lesson</p>
@@ -534,14 +576,16 @@ button:focus-visible,[tabindex]:focus-visible{
 <!-- ============ GRID ============ -->
 <main id="grid" class="screen">
   <div class="topbar">
-    <button class="round small" id="menuBtn" aria-label="Back to the animals">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg>
+    <button class="exit" id="menuBtn" aria-label="Back to the list of animals" title="Back to the animals">
+      <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg></span><span class="lbl">Animals</span>
     </button>
-    <button class="face-btn small" id="gridHome" aria-label="Back to the start"><img class="face" src="louis.webp" alt="Louis" width="44" height="44"></button>
     <div class="brand">
       <span id="brandArt"></span>
       <span><b id="lessonName">Badgers</b><span>Tap a picture to listen</span></span>
     </div>
+    <button class="exit home" id="gridHome" aria-label="Back to the start" title="Back to the start">
+      <span class="ico"><img src="louis.webp" alt="" width="64" height="64"></span><span class="lbl">Start</span>
+    </button>
   </div>
 
   <div class="progress">
@@ -555,10 +599,13 @@ button:focus-visible,[tabindex]:focus-visible{
 <!-- ============ DETAIL ============ -->
 <section id="detail" class="screen" role="dialog" aria-modal="true" aria-label="Badger fact">
   <div class="detail-top">
-    <button class="round small" id="homeBtn" aria-label="Back to all the pictures">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V20h13V9.5"/><path d="M9.7 20v-5.6h4.6V20"/></svg>
+    <button class="exit" id="homeBtn" aria-label="Back to all the pictures" title="Back to the pictures">
+      <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"/></svg></span><span class="lbl">Pictures</span>
     </button>
     <span class="spacer"></span>
+    <button class="exit home" id="detailHome" aria-label="Back to the start" title="Back to the start">
+      <span class="ico"><img src="louis.webp" alt="" width="64" height="64"></span><span class="lbl">Start</span>
+    </button>
   </div>
 
   <div class="stage" id="stage"><span class="halo"></span></div>
@@ -584,7 +631,15 @@ button:focus-visible,[tabindex]:focus-visible{
     <span id="partyArt"></span>
     <h2>You heard them all!</h2>
     <p>Twelve secrets learned. Well done, Louis!</p>
-    <button class="again" id="againBtn">Go again</button>
+    <div class="party-exits">
+      <button class="exit" id="partyBack" aria-label="Back to the list of animals" title="Back to the animals">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg></span><span class="lbl">Animals</span>
+      </button>
+      <button class="again" id="againBtn">Go again</button>
+      <button class="exit home" id="partyHome" aria-label="Back to the start" title="Back to the start">
+        <span class="ico"><img src="louis.webp" alt="" width="64" height="64"></span><span class="lbl">Start</span>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -2607,8 +2662,14 @@ function goHome(){
   detailEl.classList.remove("on"); partyEl.classList.remove("on");
   show(startEl); window.scrollTo(0,0);
 }
-$("menuHome").addEventListener("click",goHome);
-$("gridHome").addEventListener("click",goHome);
+["menuHome","gridHome","detailHome","partyHome"].forEach(function(id){
+  $(id).addEventListener("click",goHome);
+});
+$("partyBack").addEventListener("click",function(){
+  pop(); stopSpeaking();
+  partyEl.classList.remove("on");
+  lesson=null; current=-1; show(menuEl); window.scrollTo(0,0);
+});
 
 $("menuBtn").addEventListener("click",function(){
   pop(); stopSpeaking(); clearTimeout(nudgeTimer);
@@ -2640,10 +2701,17 @@ $("soundToggle").addEventListener("click",function(){
 });
 
 document.addEventListener("keydown",function(e){
-  if(!detailEl.classList.contains("on")) return;
-  if(e.key==="Escape"){ close(); }
-  if(e.key==="ArrowLeft"){ step(-1); }
-  if(e.key==="ArrowRight"){ step(1); }
+  if(detailEl.classList.contains("on")){
+    if(e.key==="Escape"){ close(); }
+    if(e.key==="ArrowLeft"){ step(-1); }
+    if(e.key==="ArrowRight"){ step(1); }
+    return;
+  }
+  /* Escape steps outward from wherever you are, so there is always a way out */
+  if(e.key!=="Escape") return;
+  if(partyEl.classList.contains("on")){ partyEl.classList.remove("on"); lesson=null; show(menuEl); }
+  else if(gridEl.classList.contains("on")){ lesson=null; show(menuEl); }
+  else if(menuEl.classList.contains("on")){ goHome(); }
 });
 
 /* swipe between cards */

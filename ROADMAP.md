@@ -66,6 +66,23 @@ A third palette: daylight, blue-green, sand.
 - **Shore crab**
 - **Basking shark** — enormous and completely harmless
 
+## Exits and accessibility — done
+
+Every screen now has the same two ways out, in the same place, at 64 px:
+
+- **Step back one level** — `Animals` on a lesson grid, `Pictures` on a card.
+- **All the way home** — Louis's face, labelled `Start`, on every screen.
+
+Both carry a small uppercase label beneath, which costs a child nothing and
+tells an adult exactly what the button does. Escape now steps outward from
+wherever you are, and the celebration screen — previously a dead end offering
+only "Go again" — has both exits alongside it.
+
+The card view deliberately uses a **grid-of-squares** icon rather than a second
+left-chevron, because the bottom row already has chevrons for moving between
+cards and two identical arrows meaning different things is exactly the kind of
+thing a five-year-old gets wrong.
+
 ## Beyond content
 
 - **Listening quiz** — voice asks a question, child taps one of three pictures.

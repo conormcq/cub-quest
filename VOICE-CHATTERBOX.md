@@ -1,50 +1,42 @@
 # Local Chatterbox narration
 
-Cub Quest can generate voice-cloned narration previews locally with
-[Resemble AI's Chatterbox Turbo](https://github.com/resemble-ai/chatterbox).
-Turbo is the project's recommended lower-compute English narration model.
-Chatterbox uses zero-shot conditioning: it derives the voice from the reference
-recording when the model loads, rather than creating a separately trained
-checkpoint.
+The canonical voice-cloning workspace is
+`~/Personal Projects/cub-quest-voice/`. It contains the cleaned reference,
+source narration manifest, timing-aware renderer, pronunciation checks, and
+staged audio. Read its `VOICE-DEVPLAN.md` and `VOICE-README.md` before running
+another batch.
+
+The local engine is [Resemble AI's Chatterbox Turbo](https://github.com/resemble-ai/chatterbox),
+the project's recommended lower-compute English narration model. Chatterbox
+uses zero-shot conditioning: it derives the voice from the reference recording
+when the model loads rather than producing a separately trained checkpoint.
 
 ## Local setup
 
 The installed runtime is intentionally ignored by Git:
 
-- Python 3.11 virtual environment: `.local/chatterbox/.venv`
-- Prepared reference: `.local/chatterbox/reference/voice-reference.wav`
-- Generated auditions: `.local/chatterbox/output/`
+- Python 3.11 virtual environment: `../cub-quest-voice/.venv`
+- Cleaned reference: `../cub-quest-voice/voice/reference_clean.wav`
+- Generated auditions and timed audio: `../cub-quest-voice/voice_out/`
 - Hugging Face model files: the user's normal Hugging Face cache
 
 Recreate the environment if needed:
 
 ```sh
-uv venv --python /opt/homebrew/bin/python3.11 .local/chatterbox/.venv
-uv pip install --python .local/chatterbox/.venv/bin/python \
+cd ../cub-quest-voice
+uv venv --python /opt/homebrew/bin/python3.11 .venv
+uv pip install --python .venv/bin/python \
   chatterbox-tts==0.1.7 "setuptools<81"
 ```
 
-Prepare an M4A reference as 24 kHz mono WAV:
+## Generate auditions and timed narration
 
 ```sh
-ffmpeg -i "/path/to/reference.m4a" -ac 1 -ar 24000 -c:a pcm_s16le \
-  -af "highpass=f=65,lowpass=f=11000,alimiter=limit=0.95" \
-  .local/chatterbox/reference/voice-reference.wav
+.venv/bin/python render_voice.py --check
+.venv/bin/python render_voice.py --only hello,stripes,night
 ```
 
-## Generate auditions
-
-Narration IDs and text are read from the deployed `index.html`, keeping preview
-copy consistent with the current app:
-
-```sh
-.local/chatterbox/.venv/bin/python tools/chatterbox_narration.py \
-  hello stripes night
-```
-
-Use `--dry-run` to inspect resolved text without loading the model. Use
-`--overwrite` only when intentionally replacing an earlier audition.
-
-Preview files are not copied over `audio/*.mp3` automatically. The app's word
-highlight timings must be regenerated before any new narration is deployed;
-otherwise the spoken words and on-screen highlighting will drift apart.
+Use `--overwrite` only when intentionally regenerating earlier results. The
+workspace now has all 183 total clip entries, but `--all` should wait until the
+six checks and badger chapter pass listening review. The deployed app remains
+unchanged until the staged MP3s and timings are approved and Claude rebuilds it.

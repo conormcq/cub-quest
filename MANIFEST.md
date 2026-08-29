@@ -78,6 +78,58 @@ into the template rather than overwrite it.
 
 Newest first. Append, don't rewrite.
 
+### 2026-08-29 — Codex — voice manifest synchronized; listening gate remains
+- Claude synchronized `cub-quest-voice/audio/lines.json` during final QA. It
+  now has all 183 live clip IDs, including the 48 coastal facts and four coastal
+  celebrations previously missing. The inventory blocker recorded below is
+  resolved.
+- The next command is `render_voice.py --all`, which will skip the 12 staged
+  badger MP3s and render the remaining 171 entries with the same reference,
+  deterministic settings, fixed gain, and merged timing checkpoints.
+- Full generation is intentionally waiting for Conor to listen to
+  `voice_out/check_*.wav` and the badger chapter. Automated checks cannot judge
+  whether the clone sounds like him or whether the special Irish words and
+  sound effects are pronounced acceptably.
+
+### 2026-08-29 — Codex — complete timed Chatterbox badger chapter staged
+- Finished all 12 badger narration clips in
+  `~/Personal Projects/cub-quest-voice/voice_out/audio/` and merged their
+  read-along records into `voice_out/timings.json`. The Ireland-only `hello`
+  matches v10 and contains no Britain reference.
+- Batch validation passed: all 12 timing word lists equal source, intervals are
+  positive/monotonic and end before MP3 EOF, decoded samples are finite, and no
+  clip clips. Total staged speech is 187.97 seconds; the highest decoded peak
+  is -0.85 dBFS.
+- The deployed app remains on Kokoro pending human listening review of the six
+  pronunciation checks and badger chapter. Derived timing is structurally
+  valid but is not a substitute for listening to voice identity, omissions,
+  repetitions, and Irish/special-word pronunciation.
+- Inventory correction: live `CLIPS` has **183 total files**, consisting of 168
+  read-along clips, 14 celebrations, and one dormant welcome — 182 active, not
+  183 active. The older voice manifest has 131 total entries and is missing 48
+  coastal facts plus four coastal celebrations. Full render remains on hold
+  until Claude syncs those exact source texts.
+
+### 2026-08-29 — Codex — Chatterbox Turbo running; first timed voice batch ready
+- Installed Chatterbox TTS 0.1.7 with Python 3.11 and `setuptools<81` in the
+  dedicated `~/Personal Projects/cub-quest-voice/.venv`. The official Turbo
+  English checkpoint runs successfully on the M4 Pro via MPS; model files are
+  cached locally and are not committed.
+- Reused Claude's cleaned 16-second reference and upgraded `render_voice.py`
+  from the slow original model to Turbo. Reference conditioning now happens
+  once per run. Added deterministic per-sentence seeds, persistent fixed-gain
+  settings, safe MP3 limiting, resumable timing merges, and `--overwrite`.
+- Generated all six pronunciation auditions in `cub-quest-voice/voice_out/`
+  and the first deployable batch: `hello.mp3`, `stripes.mp3`, `night.mp3`, plus
+  derived per-word `timings.json`. Timing word lists match source exactly and
+  decode QA confirms no clipping after correcting the initial limiter ceiling.
+  `hello` was regenerated after the v10 text edit removed Britain.
+- **No deployed `cub-quest/audio/*.mp3` files were replaced by Chatterbox.**
+  The new clips are staged for listening and Claude's rebuild/publish flow.
+- **Full-render hold:** `cub-quest-voice/audio/lines.json` still has the older
+  131 entries. The live 14-lesson app has 183 active clips. Claude must sync the
+  current source narration manifest before Codex runs `render_voice.py --all`.
+
 ### 2026-08-29 — Claude — four small fixes (uncommitted — Codex, please commit)
 Conor asked for these while the Chatterbox work is in progress, and asked that
 whoever's already at a Terminal commit them rather than round-tripping through

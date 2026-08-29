@@ -1,7 +1,7 @@
 {
   "name": "Louis's Cub Quest",
   "short_name": "Cub Quest",
-  "description": "Badgers, foxes and bats, read out loud.",
+  "description": "A read-aloud adventure through the wild animals of Ireland for young children.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

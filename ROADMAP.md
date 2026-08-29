@@ -4,7 +4,8 @@ Audio read-along lessons about Irish wildlife, for a pre-reader.
 
 ## Shipped
 
-Fourteen lessons, twelve cards each — 168 cards, 183 audio clips.
+Fourteen lessons, twelve cards each — 168 cards and 191 audio clips when the
+celebrations, badger quiz, and dormant welcome are included.
 
 | Lesson | Notes |
 |---|---|
@@ -128,12 +129,13 @@ badger version does throughout) rather than drawing new SVG.
 
 ## Technical notes for future work
 
-- Each lesson costs roughly **0.9 MB** of audio (12 clips at 40 kbps) and about
-  10 KB of `index.html` for its timings. Seven lessons is 6.8 MB; the service
-  worker precaches all of it on first visit.
-- Adding a lesson means: research → 12 scripts in `audio/lines.json` → render
-  with `audio/build_audio.py` → SVG scenes in the template → an entry in
-  `LESSONS` → `build_pages.py`.
+- Each lesson costs roughly **1.1 MB** of audio (12 clips at 48 kbps) and about
+  10 KB of `index.html` for its timings. The service worker precaches all active
+  clips on the first visit.
+- Adding a lesson means: research → 12 scripts in `audio/lines.json` → sync the
+  narration manifest to `../cub-quest-voice` and render with Chatterbox → merge
+  `audio/timings.json` into the read-along data → add the scenes and `LESSONS`
+  entry → rebuild the deployable site.
 - **Bump `CACHE` in `sw.js`** on every deploy or iPads keep the old version.
 - Any new theme needs the token structure described in the design notes: define
   the complete palette on `:root`, and never let a colour exist only inside a

@@ -1,7 +1,7 @@
 # Cub Quest
 
-An offline-capable web app: badgers, foxes and bats read aloud, with the words
-highlighted as they are spoken.
+An offline-capable read-aloud web app with fourteen lessons about Irish
+wildlife, word-by-word highlighting, celebrations, and a badger quiz.
 
 ## Putting it on GitHub Pages
 
@@ -43,12 +43,16 @@ toolbars, and it works with the wifi off from then on.
 
 ## Changing it later
 
-Re-upload the changed files, and bump `CACHE` in `sw.js` (`cub-quest-v6` -> `-v2`). Without that bump, iPads keep serving the old cached copy.
+Re-upload the changed files, and bump `CACHE` in `sw.js` (for example,
+`cub-quest-v14` -> `cub-quest-v15`). Without that bump, iPads keep serving the
+old cached copy.
 
 ## What is in here
 
 - `index.html` — the whole app: markup, styles, illustrations, read-along logic
-- `audio/` — 40 narration clips (Kokoro-82M, voice `bf_alice`)
+- `audio/` — 191 narration clips generated with Chatterbox Turbo from the
+  original `New Recording 25` voice sample, plus the narration text and timing
+  manifests
 - `fonts/` — the two typefaces, shipped so the page looks right offline
 - `sw.js` — the service worker that makes it work offline
 - `manifest.webmanifest` — name, icons and full-screen behaviour

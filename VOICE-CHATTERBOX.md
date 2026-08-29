@@ -16,7 +16,7 @@ when the model loads rather than producing a separately trained checkpoint.
 The installed runtime is intentionally ignored by Git:
 
 - Python 3.11 virtual environment: `../cub-quest-voice/.venv`
-- Cleaned reference: `../cub-quest-voice/voice/reference_clean.wav`
+- Approved reference: `../cub-quest-voice/voice/reference_new_recording_25.wav`
 - Generated auditions and timed audio: `../cub-quest-voice/voice_out/`
 - Hugging Face model files: the user's normal Hugging Face cache
 
@@ -32,11 +32,18 @@ uv pip install --python .venv/bin/python \
 ## Generate auditions and timed narration
 
 ```sh
-.venv/bin/python render_voice.py --check
-.venv/bin/python render_voice.py --only hello,stripes,night
+.venv/bin/python render_voice.py --check \
+  --reference voice/reference_new_recording_25.wav
+.venv/bin/python render_voice.py --only hello,stripes,night \
+  --reference voice/reference_new_recording_25.wav
 ```
 
 Use `--overwrite` only when intentionally regenerating earlier results. The
-workspace now has all 183 total clip entries, but `--all` should wait until the
-six checks and badger chapter pass listening review. The deployed app remains
-unchanged until the staged MP3s and timings are approved and Claude rebuilds it.
+approved rollout uses the original `New Recording 25` sample, not the later
+more-Irish experiment. The complete 191-clip render is deployed across the app;
+`audio/lines.json` and `audio/timings.json` preserve the text and timing
+manifests used by the current build.
+
+The completed batch is 45.66 minutes of mono 22.05 kHz MP3 audio. All 191 clips
+decode successfully, have finite unclipped samples, stay between -21.4 and
+-17.4 LUFS, and have complete, monotonic timings bounded by their audio.

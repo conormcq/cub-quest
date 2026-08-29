@@ -29,7 +29,7 @@ a generated file, say so and Claude will hold off.
 | File | Generated from | Notes |
 |---|---|---|
 | `index.html` | `animal-lessons.tpl.html` + `build_pages.py` | 160 KB, contains all markup, CSS, illustrations, timings |
-| `audio/*.mp3` | `audio/lines.json` → `audio/build_audio.py` | one per clip, 40 kbps |
+| `audio/*.mp3` | `audio/lines.json` → `../cub-quest-voice/render_voice.py` | one per clip, Chatterbox Turbo, 48 kbps |
 | `audio/lo/*.mp3` | same, re-encoded at 28 kbps | **build workspace only — not deployed.** The Pages site ships the 40 kbps files; `audio/lo/` exists so the artifact and standalone HTML stay under their 16 MB cap |
 | `sw.js` | `build_pages.py` | **`CACHE` is bumped on every deploy** |
 | `manifest.webmanifest` | `build_pages.py` | |
@@ -77,6 +77,23 @@ into the template rather than overwrite it.
 ## Change log
 
 Newest first. Append, don't rewrite.
+
+### 2026-08-29 — Codex — original New Recording 25 voice rolled out everywhere
+- Reconciled the three addition-question clips added during the long render,
+  expanded the Chatterbox manifest from 188 to all **191** app clip IDs, and
+  rendered those final clips with the same original `New Recording 25`
+  reference and deterministic settings. The more-Irish experiment was not
+  used.
+- Replaced every deployed MP3, including all eight badger quiz clips, and
+  merged the new timing data into all 175 read-along entries. Added
+  `audio/lines.json` and `audio/timings.json` to keep the deployed narration's
+  source text and timing provenance in Git.
+- Full-batch QA: 191/191 files decode as mono 22.05 kHz MP3; decoded samples
+  are finite and unclipped; true peaks range from -4.9 to -0.8 dBFS; integrated
+  loudness ranges from -21.4 to -17.4 LUFS (mean -18.7); every source word has
+  a positive, monotonic timing interval ending within its clip. Total narration
+  duration is 45.66 minutes.
+- `CACHE` → `cub-quest-v14` so existing iPad installs fetch the new voice.
 
 ### 2026-08-29 — Claude — added simple-addition questions to the badger quiz
 Conor asked for some simple maths addition questions added to the badger
@@ -418,14 +435,15 @@ his. **Files are synced into the working tree but not committed or pushed.**
 
 ## Current state
 
-- **14 lessons, 168 cards, 191 audio clips** (183 lesson/celebration clips +
-  8 badger quiz clips [5 fact questions/done + 3 new addition questions];
-  `welcome` is a 192nd, dormant clip)
-- Voice: Kokoro-82M `bf_alice`, 40 kbps mono MP3
+- **14 lessons, 168 cards, 191 audio clips** (168 lesson clips + 14
+  celebrations + 8 badger quiz clips [4 fact questions, done, and 3 addition
+  questions] + the dormant `welcome` clip)
+- Voice: Chatterbox Turbo using the original `New Recording 25` reference,
+  48 kbps mono MP3
 - Pages bundle ~13.96 MB; `index.html` ~326 KB
 - Inline builds **11.29 MB** against the 16 MB ceiling, via `audio/lo/` + the
   dropped welcome clip
-- `CACHE` → `cub-quest-v12`
+- `CACHE` → `cub-quest-v14`
 - **New this round: simple-addition questions in the badger quiz's rotation**
   (counting pictures, not numerals — see the top change-log entry). The quiz
   as a whole is still badgers only, awaiting Conor's review before it goes on

@@ -2,7 +2,7 @@
    - App shell is versioned and refreshed on each release.
    - Narration/audio is kept in a persistent runtime cache across releases.
    - Navigations are network-first, with the cached app as offline fallback. */
-const SHELL_CACHE = "cub-quest-shell-v24";
+const SHELL_CACHE = "cub-quest-shell-v25";
 const RUNTIME_CACHE = "cub-quest-runtime-v1";
 
 const CORE = [
@@ -14,6 +14,7 @@ const CORE = [
   "games/woodland-games.js",
   "games/air-games.js",
   "games/water-games.js",
+  "games/publish-games.js",
   "games/game-lab.js",
   "app-update.js",
   "manifest.webmanifest",
@@ -32,6 +33,7 @@ const RUNTIME_SCRIPTS = [
   "games/woodland-games.js",
   "games/air-games.js",
   "games/water-games.js",
+  "games/publish-games.js",
   "games/game-lab.js",
   "app-update.js"
 ];

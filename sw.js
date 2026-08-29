@@ -1,11 +1,16 @@
-/* Offline cache for Cub Quest.
-   Bump CACHE when the site changes, so iPads pick up the new version. */
-const CACHE = "cub-quest-v22";
+/* Cub Quest offline/update strategy.
+   - App shell is versioned and refreshed on each release.
+   - Narration/audio is kept in a persistent runtime cache across releases.
+   - Navigations are network-first, with the cached app as offline fallback. */
+const SHELL_CACHE = "cub-quest-shell-v23";
+const RUNTIME_CACHE = "cub-quest-runtime-v1";
+
 const CORE = [
   "./",
   "index.html",
   "badger-game.js",
   "badger-ui.js",
+  "app-update.js",
   "manifest.webmanifest",
   "louis.webp",
   "icon-180.png",
@@ -15,69 +20,156 @@ const CORE = [
   "fonts/nunito.woff2"
 ];
 
-/* Existing audio is cached lazily on first use. */
-self.addEventListener("install", (e) => {
-  e.waitUntil(
-    caches.open(CACHE)
-      .then((c) => c.addAll(CORE))
-      .then(() => self.skipWaiting())
+const FRESH_FILES = new Set([
+  "badger-game.js",
+  "badger-ui.js",
+  "app-update.js",
+  "manifest.webmanifest"
+]);
+
+async function precacheFreshShell(){
+  const cache = await caches.open(SHELL_CACHE);
+  await Promise.all(CORE.map(async (path) => {
+    const response = await fetch(path, { cache: "reload" });
+    if (!response || !response.ok) throw new Error("Failed to precache " + path);
+    await cache.put(path, response.clone());
+  }));
+}
+
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    precacheFreshShell().then(() => self.skipWaiting())
   );
 });
 
-self.addEventListener("activate", (e) => {
-  e.waitUntil(
-    caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
-      .then(() => self.clients.claim())
+/* Preserve audio already downloaded by older Cub Quest workers before removing
+   their caches. This is especially useful for an iPad used away from Wi-Fi. */
+async function migrateOldAudioAndClean(){
+  const keys = await caches.keys();
+  const runtime = await caches.open(RUNTIME_CACHE);
+
+  for (const key of keys) {
+    if (key === SHELL_CACHE || key === RUNTIME_CACHE) continue;
+    if (!key.startsWith("cub-quest-")) continue;
+
+    const oldCache = await caches.open(key);
+    const requests = await oldCache.keys();
+    for (const request of requests) {
+      const url = new URL(request.url);
+      if (url.pathname.includes("/audio/")) {
+        const response = await oldCache.match(request);
+        if (response) await runtime.put(request, response);
+      }
+    }
+    await caches.delete(key);
+  }
+}
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    migrateOldAudioAndClean().then(() => self.clients.claim())
   );
 });
 
-function withBadgerDash(html) {
-  if (html.includes('badger-ui.js')) return html;
-  const scripts = `<script src="badger-game.js"></script>\n<script src="badger-ui.js"></script>`;
+function withRuntimeScripts(html){
+  const required = ["badger-game.js", "badger-ui.js", "app-update.js"];
+  const missing = required.filter((src) => !html.includes('src="' + src + '"'));
+  if (!missing.length) return html;
+  const scripts = missing.map((src) => '<script src="' + src + '"></script>').join("\n");
   return html.replace("</body>", scripts + "\n</body>");
 }
 
-async function serveHtml(request) {
-  const cached = await caches.match(request, { ignoreSearch: true }) || await caches.match("index.html");
-  let response = cached;
+async function navigationResponse(request){
+  let response = null;
+
+  /* Prefer the live site whenever there is a connection. cache:no-store keeps
+     iOS/Safari's HTTP cache from handing us an older index.html. */
   try {
-    const fresh = await fetch(request);
+    const fresh = await fetch(request, { cache: "no-store" });
     if (fresh && fresh.ok) {
       response = fresh;
-      const copy = fresh.clone();
-      caches.open(CACHE).then((c) => c.put(request, copy));
+      const shell = await caches.open(SHELL_CACHE);
+      await shell.put("index.html", fresh.clone());
+      await shell.put("./", fresh.clone());
     }
   } catch (_) {}
-  if (!response) return fetch(request);
+
+  /* No network: open the latest successfully cached app shell. */
+  if (!response) {
+    response = await caches.match("index.html", { cacheName: SHELL_CACHE }) ||
+               await caches.match("./", { cacheName: SHELL_CACHE });
+  }
+
+  if (!response) {
+    return new Response("Cub Quest is offline and has not finished installing yet.", {
+      status: 503,
+      headers: { "Content-Type": "text/plain; charset=utf-8" }
+    });
+  }
+
   const html = await response.text();
-  return new Response(withBadgerDash(html), {
+  const headers = new Headers(response.headers);
+  headers.set("Content-Type", "text/html; charset=utf-8");
+  headers.set("Cache-Control", "no-store");
+  headers.delete("Content-Length");
+  return new Response(withRuntimeScripts(html), {
     status: response.status,
     statusText: response.statusText,
-    headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-cache" }
+    headers
   });
 }
 
-self.addEventListener("fetch", (e) => {
-  if (e.request.method !== "GET") return;
+async function networkFirst(request){
+  try {
+    const fresh = await fetch(request, { cache: "no-store" });
+    if (fresh && fresh.ok) {
+      const shell = await caches.open(SHELL_CACHE);
+      await shell.put(request, fresh.clone());
+      return fresh;
+    }
+  } catch (_) {}
+  return (await caches.match(request, { cacheName: SHELL_CACHE, ignoreSearch: true })) ||
+         (await caches.match(request, { cacheName: RUNTIME_CACHE, ignoreSearch: true })) ||
+         new Response("", { status: 504 });
+}
 
-  const url = new URL(e.request.url);
-  const isNavigation = e.request.mode === "navigate" || url.pathname.endsWith("/cub-quest/") || url.pathname.endsWith("/cub-quest/index.html");
+async function cacheFirstRuntime(request){
+  const shellHit = await caches.match(request, { cacheName: SHELL_CACHE, ignoreSearch: true });
+  if (shellHit) return shellHit;
+
+  const runtimeHit = await caches.match(request, { cacheName: RUNTIME_CACHE, ignoreSearch: true });
+  if (runtimeHit) return runtimeHit;
+
+  try {
+    const response = await fetch(request);
+    if (response && response.ok) {
+      const runtime = await caches.open(RUNTIME_CACHE);
+      await runtime.put(request, response.clone());
+    }
+    return response;
+  } catch (_) {
+    return new Response("", { status: 504 });
+  }
+}
+
+self.addEventListener("fetch", (event) => {
+  if (event.request.method !== "GET") return;
+
+  const url = new URL(event.request.url);
+  const isNavigation = event.request.mode === "navigate" ||
+    url.pathname.endsWith("/cub-quest/") ||
+    url.pathname.endsWith("/cub-quest/index.html");
+
   if (isNavigation) {
-    e.respondWith(serveHtml(e.request));
+    event.respondWith(navigationResponse(event.request));
     return;
   }
 
-  e.respondWith(
-    caches.match(e.request, { ignoreSearch: true }).then((hit) => {
-      if (hit) return hit;
-      return fetch(e.request).then((res) => {
-        if (res && res.ok && res.type === "basic") {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(e.request, copy));
-        }
-        return res;
-      }).catch(() => caches.match("index.html"));
-    })
-  );
+  if (url.origin === self.location.origin && FRESH_FILES.has(url.pathname.split("/").pop())) {
+    event.respondWith(networkFirst(event.request));
+    return;
+  }
+
+  /* Audio and other static resources remain usable offline after first load. */
+  event.respondWith(cacheFirstRuntime(event.request));
 });

@@ -13,6 +13,7 @@ await mkdir(server, { recursive: true });
 
 for (const path of [
   "index.html",
+  "badger-game.js",
   "manifest.webmanifest",
   "sw.js",
   "louis.webp",
@@ -24,6 +25,12 @@ for (const path of [
 ]) {
   await cp(join(root, path), join(client, path), { recursive: true });
 }
+
+// Keep the large single-file app untouched: load optional mini-games after its
+// own script has initialized, so they can hook into quiz completion safely.
+const indexPath = join(client, "index.html");
+const indexHtml = await readFile(indexPath, "utf8");
+await writeFile(indexPath, indexHtml.replace("</body>", "<script src=\"badger-game.js\"></script>\n</body>"));
 
 try {
   const socialCard = await readFile(join(root, "public", "og.png"));

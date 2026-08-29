@@ -16,6 +16,7 @@ for (const path of [
   "badger-game.js",
   "badger-ui.js",
   "app-update.js",
+  "games",
   "manifest.webmanifest",
   "sw.js",
   "louis.webp",
@@ -28,10 +29,20 @@ for (const path of [
   await cp(join(root, path), join(client, path), { recursive: true });
 }
 
-// Load optional game UI and the PWA update manager after the main app.
+// Load game runtimes after the main Cub Quest app. Game Lab is inert unless
+// the URL contains ?games=1, so normal navigation remains unchanged.
 const indexPath = join(client, "index.html");
 const indexHtml = await readFile(indexPath, "utf8");
-const extraScripts = `<script src="badger-game.js"></script>\n<script src="badger-ui.js"></script>\n<script src="app-update.js"></script>`;
+const extraScripts = [
+  "badger-game.js",
+  "badger-ui.js",
+  "games/game-shell.js",
+  "games/woodland-games.js",
+  "games/air-games.js",
+  "games/water-games.js",
+  "games/game-lab.js",
+  "app-update.js",
+].map((src) => `<script src="${src}"></script>`).join("\n");
 await writeFile(indexPath, indexHtml.replace("</body>", extraScripts + "\n</body>"));
 
 try {

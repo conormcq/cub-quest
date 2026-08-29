@@ -1,8 +1,14 @@
-/* Cub Quest — development Game Lab. Only visible when ?games=1 is present. */
+/* Cub Quest — development Game Lab. Enable with ?games=1, disable with ?games=0. */
 (function(){
   "use strict";
-  var params=new URLSearchParams(location.search);
-  if(params.get("games")!=="1") return;
+  var params=new URLSearchParams(location.search),flag=params.get("games");
+  try{
+    if(flag==="1") localStorage.setItem("cqGameLab","1");
+    if(flag==="0") localStorage.removeItem("cqGameLab");
+  }catch(e){}
+  var enabled=flag==="1";
+  if(flag!=="0")try{enabled=enabled||localStorage.getItem("cqGameLab")==="1";}catch(e){}
+  if(!enabled) return;
 
   var style=document.createElement("style");
   style.textContent=`

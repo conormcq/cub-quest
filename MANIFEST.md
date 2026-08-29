@@ -78,6 +78,71 @@ into the template rather than overwrite it.
 
 Newest first. Append, don't rewrite.
 
+### 2026-08-29 — Claude — four small fixes (uncommitted — Codex, please commit)
+Conor asked for these while the Chatterbox work is in progress, and asked that
+whoever's already at a Terminal commit them rather than round-tripping through
+his. **Files are synced into the working tree but not committed or pushed.**
+
+- **Removed the "Britain" reference.** The badger `hello` clip said "all
+  around Ireland and Britain" — this app is specifically about Irish
+  wildlife, so that read oddly. Reworded to "...all around Ireland." in
+  `audio/lines.json`, then **re-rendered just that one clip** with Kokoro
+  (`bf_alice`, same pipeline as the rest of the library) — both `audio/hello.mp3`
+  (40 kbps) and `audio/lo/hello.mp3` (24 kbps), and merged its new word timing
+  into `timings.json` without touching the other 182 entries. Checked no other
+  clip or doc references Britain/British as app content (a build_audio.py code
+  comment describing Kokoro's `bf_*` voices as "British voices" is accurate
+  technical terminology, not user-facing, and was left alone).
+- **Start-screen subtitle**: "Wild animals of the night" was inaccurate once
+  the seashore lessons shipped — seals, puffins, dolphins and basking sharks
+  are day-active, only the original six or so are nocturnal/crepuscular.
+  Changed to "Wild animals of Ireland".
+- **"Tap to start!" is now actually clickable.** It was a decorative
+  `aria-hidden` span next to the `#wake` button, not part of it — tapping the
+  text itself did nothing, only the picture worked. Turned it into its own
+  `<button id="tapHint">` with the same aria-label, wired to the same handler
+  (`wakeUp()`) as the picture. Kept as a separate element rather than nesting
+  it inside `#wake` to avoid touching that button's circular sizing/ping-ring
+  CSS.
+- **iOS "Add to Home Screen" header clipping.** In standalone display mode on
+  an iPhone there's no browser chrome, so the status bar/notch/Dynamic Island
+  sits directly over the page — and the header row (the exit buttons) on
+  `#start`, `#menu`, `#grid`, and `#detail` had flat top padding with no
+  allowance for that. Added `env(safe-area-inset-top)` to each (the viewport
+  meta already has `viewport-fit=cover`, which is required for that value to
+  be non-zero — was already set, nothing else needed). `#detail` already had
+  `env(safe-area-inset-bottom)` for its own controls; this adds the missing
+  top half. `#party`'s exits sit at the bottom of centered content, not under
+  the notch, so left it alone. Can't test a real notch/Dynamic Island in this
+  sandbox's headless Chromium — the CSS is standard and correct, but worth a
+  real iPhone-in-standalone-mode look when convenient.
+- Rebuilt both `build.py` and `build_pages.py`. Verified via Playwright:
+  kicker text, tap-hint click → menu navigation, and badger hello card/audio
+  text all correct, no JS errors, no visual regression on the header/padding
+  changes at zero inset (can't simulate a real notch here).
+- `CACHE` → `cub-quest-v10`.
+
+### 2026-08-29 — Claude — voice-cloning work unparked, handed to Codex
+- Conor asked Codex to set up Chatterbox locally to re-narrate the app in his
+  own voice. This was previously parked (see `VOICE-DEVPLAN.md`) after ruling
+  out the LM Studio/GGUF route — Conor's downloaded `chatterbox-nano-v1.gguf`
+  turned out to contain only the T3 stage (text→speech-tokens), missing the
+  S3Gen vocoder and voice encoder, so it cannot produce audio, and there's no
+  local runtime for it anyway. **Do not retry that route.**
+- `VOICE-DEVPLAN.md` has a note addressed to Codex with what's already
+  prepared: a cleaned 16 s reference clip (`voice/reference_clean.wav`), a
+  working render script (`render_voice.py`) matched to this app's read-along
+  timing requirements, and a pronunciation-respelling table — all in
+  `~/Personal Projects/cub-quest-voice/`. Reuse, adapt, or ignore as you like.
+- **Handoff point**: drop rendered audio (one mp3 per key in
+  `audio/lines.json` — 183 clips, not 131, the doc's original count) into
+  `cub-quest-voice/audio/`, plus `timings.json` if you have real per-word
+  alignment. Leave a note here when there's something to pull — Claude
+  handles the rebuild/publish from there (Stage 4–5 in the devplan).
+- Claude is checking in periodically while this is in progress, not
+  continuously — ping via a note here (or ask Conor to ask Claude directly)
+  if something needs a faster response.
+
 ### 2026-08-29 — Claude — merged Codex's hand-edits back into source
 - Codex (an AI coding agent working locally, without access to
   `animal-lessons.tpl.html` / `build_pages.py`) hand-edited generated

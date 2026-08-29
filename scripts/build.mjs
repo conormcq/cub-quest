@@ -15,6 +15,7 @@ for (const path of [
   "index.html",
   "badger-game.js",
   "badger-ui.js",
+  "app-update.js",
   "manifest.webmanifest",
   "sw.js",
   "louis.webp",
@@ -27,12 +28,11 @@ for (const path of [
   await cp(join(root, path), join(client, path), { recursive: true });
 }
 
-// Load Badger Dash after the main app. badger-game.js controls when the game
-// is available; badger-ui.js presents it as a post-quiz tile and narrates it.
+// Load optional game UI and the PWA update manager after the main app.
 const indexPath = join(client, "index.html");
 const indexHtml = await readFile(indexPath, "utf8");
-const badgerScripts = `<script src="badger-game.js"></script>\n<script src="badger-ui.js"></script>`;
-await writeFile(indexPath, indexHtml.replace("</body>", badgerScripts + "\n</body>"));
+const extraScripts = `<script src="badger-game.js"></script>\n<script src="badger-ui.js"></script>\n<script src="app-update.js"></script>`;
+await writeFile(indexPath, indexHtml.replace("</body>", extraScripts + "\n</body>"));
 
 try {
   const socialCard = await readFile(join(root, "public", "og.png"));

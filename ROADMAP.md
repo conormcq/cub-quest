@@ -95,9 +95,9 @@ thing a five-year-old gets wrong.
 ## End-of-lesson quiz — badger only, awaiting review
 
 Shipped for badgers on 2026-08-29, then reworked the same day into its
-current shape: the quiz is a **prominent banner above the lesson's picture
-grid** — always visible, not something found only after finishing or scrolling
-past every fact. It shows a padlock until unlocked, then a bright
+current shape: the quiz is a **permanent 13th tile in the lesson's picture
+grid**, directly after the twelve fact cards. It is always visible in that
+position and shows a padlock until unlocked, then a bright
 question-mark badge, with a small pulsing glow to invite a tap. Tapping it
 while locked gives the same gentle "nudge" wiggle used elsewhere for an
 unnoticed first card; it does not open anything until unlocked.

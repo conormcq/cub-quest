@@ -293,47 +293,6 @@ button:focus-visible,[tabindex]:focus-visible{
 .progress .moons{display:flex;flex-wrap:wrap;gap:7px;flex:1;}
 .progress .moons span{width:17px;height:17px;flex:none;}
 
-.quiz-slot{
-  width:100%;
-  max-width:940px;
-  margin:0 auto 16px;
-}
-.quiz-slot[hidden]{display:none;}
-.card.quiz-banner{
-  width:100%;
-  min-height:104px;
-  display:grid;
-  grid-template-columns:76px minmax(0,1fr) 38px;
-  align-items:center;
-  gap:14px;
-  padding:11px 16px 11px 12px;
-  text-align:left;
-}
-.card.quiz-banner .art{width:76px;max-width:none;}
-.quiz-banner .quiz-copy{position:relative;z-index:1;min-width:0;}
-.card.quiz-banner .label{font-size:1.2rem;}
-.quiz-banner .quiz-status{
-  display:block;
-  margin-top:4px;
-  color:var(--moon-dim);
-  font-size:.82rem;
-  font-weight:700;
-  line-height:1.25;
-}
-.quiz-banner .quiz-chevron{
-  position:relative;
-  z-index:1;
-  display:grid;
-  place-items:center;
-  width:38px;
-  height:38px;
-  border-radius:50%;
-  background:rgba(255,255,255,.06);
-  color:var(--moon-dim);
-}
-.quiz-banner .quiz-chevron svg{width:22px;height:22px;}
-.quiz-banner:not(.locked) .quiz-chevron{background:var(--honey);color:#241704;}
-
 .cards{
   width:100%;
   display:grid;
@@ -395,7 +354,7 @@ button:focus-visible,[tabindex]:focus-visible{
   22%{transform:translateY(-8px) rotate(-3deg);}
   60%{transform:translateY(-2px) rotate(2.5deg);}
 }
-/* The quiz stays visible above the facts, locked until every card is heard. */
+/* The permanent 13th tile: quiz, locked until every card is heard. */
 .quiz-tile{--tint:var(--honey);}
 .quiz-tile .art{transition:opacity .18s ease;}
 .quiz-tile.locked{--tint:#2C4064;}
@@ -755,8 +714,6 @@ button:focus-visible,[tabindex]:focus-visible{
     <span class="count" id="countText">0 / 12</span>
     <span class="moons" id="moons"></span>
   </div>
-
-  <div class="quiz-slot" id="quizSlot" hidden></div>
 
   <div class="cards" id="cards"></div>
 </main>
@@ -3262,7 +3219,6 @@ var startEl=$("start"), menuEl=$("menu"), gridEl=$("grid"),
     detailEl=$("detail"), partyEl=$("party"), lessonsEl=$("lessons");
 var stage=$("stage"), waves=$("waves"), dTitle=$("dTitle"), dSay=$("dSay");
 var cardsEl=$("cards"), countText=$("countText"), moonsEl=$("moons");
-var quizSlotEl=$("quizSlot");
 var current=-1, heard={}, nudgeTimer=null, lesson=null, quizTileEl=null;
 var quizEl=$("quiz"), qSay=$("qSay"), quizChoicesEl=$("quizChoices"),
     quizProgressEl=$("quizProgress"), quizDoneEl=$("quizDone"),
@@ -3330,8 +3286,7 @@ function openLesson(L){
   $("lessonName").textContent=L.name;
   $("brandArt").innerHTML=L.hero();
   $("partyArt").innerHTML=L.hero();
-  cardsEl.innerHTML=""; moonsEl.innerHTML=""; quizSlotEl.innerHTML="";
-  quizSlotEl.hidden=true; quizTileEl=null;
+  cardsEl.innerHTML=""; moonsEl.innerHTML=""; quizTileEl=null;
   L.cards.forEach(function(f,i){
     var b=document.createElement("button");
     b.className="card";
@@ -3348,11 +3303,8 @@ function openLesson(L){
   });
   if(L.quiz && L.quiz.length>=3){
     var q=document.createElement("button");
-    q.className="card quiz-tile quiz-banner locked";
-    q.innerHTML='<span class="art"></span>'+
-      '<span class="quiz-copy"><span class="label">'+L.name+' Quiz</span>'+
-      '<span class="quiz-status">Listen to all '+L.cards.length+' pictures to unlock it</span></span>'+
-      '<span class="quiz-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span>';
+    q.className="card quiz-tile locked";
+    q.innerHTML='<span class="art"></span><span class="label">Quiz</span>';
     q.addEventListener("click",function(){
       if(q.classList.contains("locked")){
         pop();
@@ -3362,8 +3314,7 @@ function openLesson(L){
         pop(); startQuiz();
       }
     });
-    quizSlotEl.appendChild(q);
-    quizSlotEl.hidden=false;
+    cardsEl.appendChild(q);
     quizTileEl=q;
   }
   refreshProgress();
@@ -3408,7 +3359,6 @@ function updateQuizTile(unlocked){
   quizTileEl.classList.toggle("locked",!unlocked);
   quizTileEl.setAttribute("aria-label", unlocked ? "Quiz: test what you learned" : "Quiz: locked until every picture is heard");
   quizTileEl.querySelector(".art").innerHTML = unlocked ? quizIcon() : lockArt();
-  quizTileEl.querySelector(".quiz-status").textContent = unlocked ? "Ready! Tap to test what you learned" : "Listen to all "+lesson.cards.length+" pictures to unlock it";
   if(unlocked && !was) setTimeout(fanfare,350);
 }
 

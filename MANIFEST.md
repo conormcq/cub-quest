@@ -78,6 +78,14 @@ into the template rather than overwrite it.
 
 Newest first. Append, don't rewrite.
 
+### 2026-08-29 — Codex — quiz restored to the marked 13th grid position
+- Conor clarified with a marked screenshot that the quiz belongs as the next
+  square after the twelve fact cards, not as a banner above them.
+- Restored the always-present `.card.quiz-tile` as the 13th item in the lesson
+  grid. It shows the dim lock before all facts are heard, then swaps to the
+  bright quiz badge without moving position.
+- `CACHE` → `cub-quest-v18`.
+
 ### 2026-08-29 — Codex — scrollable, swipeable lessons and visible quiz entry
 - Long lesson pages now scroll vertically inside the full-screen detail view,
   with the exit bar and previous/replay/next controls kept reachable on small
@@ -547,8 +555,9 @@ his. **Files are synced into the working tree but not committed or pushed.**
 - Pages bundle ~14.02 MB; `index.html` ~330 KB
 - Inline builds **11.34 MB** against the 16 MB ceiling, via `audio/lo/` + the
   dropped welcome clip
-- `CACHE` → `cub-quest-v17`
-- **New this round: the quiz is a prominent locked banner above the fact grid** instead
+- `CACHE` → `cub-quest-v18`
+- **The quiz is a permanent locked 13th grid tile**, in the square immediately
+  after the twelve facts, and unlocks in place when every fact is heard.
   of a celebration-screen button, "heard" now means at least half-listened
   (tracked live, so the tile can unlock mid-clip), and the badger pool grew
   from 7 to **10 questions** (see the top change-log entry). Still badgers

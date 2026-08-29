@@ -1,10 +1,11 @@
 /* Offline cache for Cub Quest.
    Bump CACHE when the site changes, so iPads pick up the new version. */
-const CACHE = "cub-quest-v20";
+const CACHE = "cub-quest-v21";
 const CORE = [
   "./",
   "index.html",
   "badger-game.js",
+  "badger-ui.js",
   "manifest.webmanifest",
   "louis.webp",
   "icon-180.png",
@@ -32,8 +33,8 @@ self.addEventListener("activate", (e) => {
 });
 
 function withBadgerDash(html) {
-  if (html.includes('badger-game.js')) return html;
-  const scripts = `<script src="badger-game.js"></script>\n<script>\n(function(){\n  var btn=document.getElementById("badgerGameBtn");\n  if(!btn)return;\n  document.body.appendChild(btn);\n  btn.classList.add("on");\n  btn.style.position="fixed";\n  btn.style.right="16px";\n  btn.style.bottom="calc(16px + env(safe-area-inset-bottom))";\n  btn.style.zIndex="110";\n  btn.style.boxShadow="0 8px 24px rgba(0,0,0,.28)";\n})();\n</script>`;
+  if (html.includes('badger-ui.js')) return html;
+  const scripts = `<script src="badger-game.js"></script>\n<script src="badger-ui.js"></script>`;
   return html.replace("</body>", scripts + "\n</body>");
 }
 

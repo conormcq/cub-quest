@@ -29,8 +29,8 @@ for (const path of [
   await cp(join(root, path), join(client, path), { recursive: true });
 }
 
-// Load game runtimes after the main Cub Quest app. Game Lab is inert unless
-// the URL contains ?games=1, so normal navigation remains unchanged.
+// Load game runtimes and publish each animal's game in its normal lesson grid.
+// Game Lab remains an optional developer launcher controlled by ?games=1.
 const indexPath = join(client, "index.html");
 const indexHtml = await readFile(indexPath, "utf8");
 const extraScripts = [
@@ -40,6 +40,7 @@ const extraScripts = [
   "games/woodland-games.js",
   "games/air-games.js",
   "games/water-games.js",
+  "games/publish-games.js",
   "games/game-lab.js",
   "app-update.js",
 ].map((src) => `<script src="${src}"></script>`).join("\n");

@@ -78,6 +78,110 @@ into the template rather than overwrite it.
 
 Newest first. Append, don't rewrite.
 
+### 2026-08-29 — Codex — scrollable, swipeable lessons and visible quiz entry
+- Long lesson pages now scroll vertically inside the full-screen detail view,
+  with the exit bar and previous/replay/next controls kept reachable on small
+  phones. Opening or swiping to a new fact resets the lesson to the top.
+- Horizontal swipes now work across the lesson surface while vertical gestures
+  remain native scrolling; pointer events are used on modern mobile browsers
+  with a touch-event fallback for older Safari.
+- The badger quiz is now a prominent locked/unlocked banner immediately below
+  lesson progress rather than a 13th tile below all twelve facts, so its state
+  is visible as soon as the lesson overview opens.
+- `CACHE` → `cub-quest-v17`.
+
+### 2026-08-29 — Codex — Louis sharing icon and animated quiz-answer celebration
+- Replaced the generated badger sharing card with the existing Louis app icon
+  in both social-preview assets, and added explicit Open Graph and X metadata
+  pointing to the versioned icon URL so link unfurlers request the new image.
+- Correct quiz answers now get a clear green check, a springy tile-and-art pop,
+  a completed progress moon, dimmed alternatives, and a short radial burst of
+  coloured sparkles before the next question. The burst is decorative,
+  non-interactive, automatically cleaned up, and skipped when reduced motion
+  is requested.
+- Re-rendered the three newest quiz prompts (`qz_badger_family/tidy/sense`) with
+  Chatterbox and the approved original `New Recording 25` reference, replacing
+  their temporary Kokoro versions and merging their new read-along timings.
+  All three decode cleanly, are unclipped, and measure -19.1 to -18.1 LUFS.
+- `CACHE` → `cub-quest-v16`.
+
+### 2026-08-29 — Claude — quiz moved to a permanent locked grid tile; pool now 10 questions
+Conor asked for the quiz to always be visible as a 13th picture after the 12
+lesson cards, locked until every lesson is completed, with "completed"
+redefined as at least half-listened rather than listened-to-the-end, and at
+least 10 questions per animal in the pool (still only 3 drawn per session).
+
+- **Removed** the "Test your knowledge?" button from the celebration screen
+  entirely (`#quizStart`/`quizStartBtn` and its `.quiz-cta` styling, all gone)
+  — the grid tile is now the sole entry point.
+- **New 13th tile** in `openLesson()`: `.card.quiz-tile`, appended after the
+  12 cards, only for lessons with a `quiz` array of 3+ questions (badger
+  only, for now). Two new SVG helpers: `lockArt()` (closed padlock on
+  `NIGHT_SOFT`) for the locked state, `quizIcon()` (a bright honey badge with
+  a question mark) for unlocked. Tapping it locked plays the existing
+  "nudge" wiggle and a soft tone — same feedback already used for an
+  unnoticed first card — and does not open the quiz. A small `quizPulse`
+  glow invites a tap once unlocked. New `updateQuizTile(unlocked)`, called
+  from `refreshProgress()`, swaps the art/class/aria-label and — on the
+  locked→unlocked transition only — plays the fanfare a beat after the
+  per-card chime, so unlocking reads as its own small moment.
+- **Redefined "heard."** New idempotent `markHeard(id)` (mark once, refresh
+  progress, chime once) is now called from two places: live from `tick()`
+  the instant `player.currentTime` crosses half of `player.duration` for the
+  card currently open (so the tile can unlock mid-listen, well before a clip
+  ends), and from `say()`'s natural-`ended` callback as a safety net (covers
+  muted playback and any edge case the live check misses). The **celebration
+  screen still only fires from the natural-end path**, never from the live
+  50% mark — confirmed by Playwright: interrupting all 12 cards early, right
+  after their live 50%-mark fires and never once letting a clip finish,
+  still unlocks the tile (12/12 progress) while the party screen never
+  opens. Removed a dead duplicate `if(muted){...}` block in `open()` that
+  re-did what the (also muted-immediate) `say()` callback had already done.
+- **Pool expanded from 7 to 10** for badgers: 3 new fact questions —
+  *"Does a badger live all alone, or together with its family?"* (`family()`
+  vs. `hello()` vs. a new small flock-of-birds decoy — the only new SVG this
+  round), *"What does a tidy badger bring into its home?"* (`tidy()` vs.
+  `sett()` vs. `berries()`, fully reusing existing card art, no new SVG at
+  all), and *"How does a badger find its food in the dark?"* (`nose()` vs.
+  the bat lesson's `bat_ears()` echolocation art vs. the barn owl lesson's
+  `bo_dark()` night-hunting art — a cross-species "whose trick is this"
+  contrast, same pattern as the very first *"Can you find the badger?"*
+  question). 3 new audio clips: `qz_badger_family`, `qz_badger_tidy`,
+  `qz_badger_sense`.
+- **Found mid-task: the deployed voice had moved to Chatterbox** (Codex's
+  entry directly below, `CACHE` already at `cub-quest-v14` on this machine)
+  — my sandbox only has the old Kokoro pipeline, so the 3 new clips above are
+  Kokoro-rendered as a stopgap, same as the addition questions were last
+  round before Codex swept them into the Chatterbox pass. To avoid regressing
+  the other 191 clips back to Kokoro, **this sync did not touch existing
+  `audio/*.mp3` files at all** — only `index.html`, `sw.js`, the 3 new mp3s,
+  and merged `audio/lines.json`/`audio/timings.json` (pulled your current
+  191-entry versions from this machine first, added only the 3 new keys on
+  top, so nothing you rendered was overwritten). `index.html`'s embedded word
+  timings now correctly mix your Chatterbox timings for the 191 existing
+  clips with Kokoro timings for the 3 new ones — rebuilding from your live
+  `audio/lines.json`/`timings.json` rather than my stale local copies avoided
+  a read-along desync across the whole app. **Whenever you next render, the
+  3 new keys are already in `audio/lines.json` for you to pick up**, same
+  handoff as the addition questions.
+- **Small thing noticed in passing, not touched:** `audio/lines.json`'s
+  `qz_badger_done` text now reads "You got all 3 right! Three cheers for a
+  clever cub!" (matching the on-screen `quizDoneText`) rather than the
+  original "Wow! You got them all right. You are a true badger champion.
+  Well done, Louis!" — not sure if that was intentional, flagging in case it
+  wasn't.
+- Verified via Playwright: locked tile blocks taps and never opens the quiz;
+  live 50%-crossing unlock confirmed by reading `player.currentTime`/
+  `duration` directly mid-playback (not muted) — a card flips to "heard" at
+  ~55% while still actively playing, not yet at ~35%; all 10 pool questions
+  sampled and screenshotted (art renders cleanly for every reused-scene and
+  new decoy); zero console/page errors across every run. Rebuilt both
+  `build.py` (11.34 MB) and `build_pages.py`.
+- `CACHE` → `cub-quest-v15` (past your v14).
+- Same as every round: not committed/pushed by Claude — Codex, please commit
+  when convenient. `MANIFEST.md`/`ROADMAP.md` here are merged onto your
+  current versions, not overwritten.
+
 ### 2026-08-29 — Codex — original New Recording 25 voice rolled out everywhere
 - Reconciled the three addition-question clips added during the long render,
   expanded the Chatterbox manifest from 188 to all **191** app clip IDs, and
@@ -435,19 +539,20 @@ his. **Files are synced into the working tree but not committed or pushed.**
 
 ## Current state
 
-- **14 lessons, 168 cards, 191 audio clips** (168 lesson clips + 14
-  celebrations + 8 badger quiz clips [4 fact questions, done, and 3 addition
-  questions] + the dormant `welcome` clip)
+- **14 lessons, 168 cards, 194 audio clips** (168 lesson clips + 14
+  celebrations + 11 badger quiz clips [4 fact + 3 addition + 3 new fact
+  questions, plus `done`] + the dormant `welcome` clip)
 - Voice: Chatterbox Turbo using the original `New Recording 25` reference,
-  48 kbps mono MP3
-- Pages bundle ~13.96 MB; `index.html` ~326 KB
-- Inline builds **11.29 MB** against the 16 MB ceiling, via `audio/lo/` + the
+  48 kbps mono MP3 across all 194 clips
+- Pages bundle ~14.02 MB; `index.html` ~330 KB
+- Inline builds **11.34 MB** against the 16 MB ceiling, via `audio/lo/` + the
   dropped welcome clip
-- `CACHE` → `cub-quest-v14`
-- **New this round: simple-addition questions in the badger quiz's rotation**
-  (counting pictures, not numerals — see the top change-log entry). The quiz
-  as a whole is still badgers only, awaiting Conor's review before it goes on
-  the other 13 lessons.
+- `CACHE` → `cub-quest-v17`
+- **New this round: the quiz is a prominent locked banner above the fact grid** instead
+  of a celebration-screen button, "heard" now means at least half-listened
+  (tracked live, so the tile can unlock mid-clip), and the badger pool grew
+  from 7 to **10 questions** (see the top change-log entry). Still badgers
+  only, awaiting Conor's review before it goes on the other 13 lessons.
 - Live: `https://claude.ai/code/artifact/0283155d-e719-4099-8301-a977550fdd0f`
   — status of this link is unconfirmed this round (not re-checked); GitHub
   Pages remains the primary deployment.

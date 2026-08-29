@@ -40,10 +40,12 @@ uv pip install --python .venv/bin/python \
 
 Use `--overwrite` only when intentionally regenerating earlier results. The
 approved rollout uses the original `New Recording 25` sample, not the later
-more-Irish experiment. The complete 191-clip render is deployed across the app;
+more-Irish experiment. The complete 194-clip render is deployed across the app;
 `audio/lines.json` and `audio/timings.json` preserve the text and timing
 manifests used by the current build.
 
-The completed batch is 45.66 minutes of mono 22.05 kHz MP3 audio. All 191 clips
-decode successfully, have finite unclipped samples, stay between -21.4 and
--17.4 LUFS, and have complete, monotonic timings bounded by their audio.
+The original 191-clip batch is 45.66 minutes of mono 22.05 kHz MP3 audio. All
+clips decode successfully, have finite unclipped samples, stay between -21.4
+and -17.4 LUFS, and have complete, monotonic timings bounded by their audio.
+The three later quiz prompts were rendered with the same reference and settings;
+they are unclipped and measure between -19.1 and -18.1 LUFS.

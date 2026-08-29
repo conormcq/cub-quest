@@ -50,7 +50,7 @@ old cached copy.
 ## What is in here
 
 - `index.html` — the whole app: markup, styles, illustrations, read-along logic
-- `audio/` — 191 narration clips generated with Chatterbox Turbo from the
+- `audio/` — 194 narration clips generated with Chatterbox Turbo from the
   original `New Recording 25` voice sample, plus the narration text and timing
   manifests
 - `fonts/` — the two typefaces, shipped so the page looks right offline

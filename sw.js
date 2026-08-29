@@ -1,6 +1,6 @@
 /* Offline cache for Cub Quest.
    Bump CACHE when the site changes, so iPads pick up the new version. */
-const CACHE = "cub-quest-v14";
+const CACHE = "cub-quest-v17";
 const ASSETS = [
   "./",
   "index.html",
@@ -9,7 +9,6 @@ const ASSETS = [
   "icon-180.png",
   "icon-192.png",
   "icon-512.png",
-  "og.png",
   "fonts/grandstander.woff2",
   "fonts/nunito.woff2",
   "audio/hello.mp3",
@@ -201,7 +200,10 @@ const ASSETS = [
   "audio/bs_deep.mp3",
   "audio/bs_jump.mp3",
   "audio/bs_warm.mp3",
-  "audio/bs_safe.mp3"
+  "audio/bs_safe.mp3",
+  "audio/qz_badger_family.mp3",
+  "audio/qz_badger_tidy.mp3",
+  "audio/qz_badger_sense.mp3"
 ];
 
 self.addEventListener("install", (e) => {

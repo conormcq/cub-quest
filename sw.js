@@ -1,6 +1,6 @@
 /* Offline cache for Cub Quest.
    Bump CACHE when the site changes, so iPads pick up the new version. */
-const CACHE = "cub-quest-v10";
+const CACHE = "cub-quest-v12";
 const ASSETS = [
   "./",
   "index.html",
@@ -23,6 +23,14 @@ const ASSETS = [
   "audio/tidy.mp3",
   "audio/nose.mp3",
   "audio/sounds.mp3",
+  "audio/qz_badger_which.mp3",
+  "audio/qz_badger_home.mp3",
+  "audio/qz_badger_daynight.mp3",
+  "audio/qz_badger_eat.mp3",
+  "audio/qz_badger_math1.mp3",
+  "audio/qz_badger_math2.mp3",
+  "audio/qz_badger_math3.mp3",
+  "audio/qz_badger_done.mp3",
   "audio/party_badger.mp3",
   "audio/party_fox.mp3",
   "audio/party_bat.mp3",

@@ -91,10 +91,35 @@ left-chevron, because the bottom row already has chevrons for moving between
 cards and two identical arrows meaning different things is exactly the kind of
 thing a five-year-old gets wrong.
 
+## End-of-lesson quiz — badger only, awaiting review
+
+Shipped for badgers on 2026-08-29: after all 12 cards, "Test your knowledge?"
+on the celebration screen offers 3 random questions (from a pool of 7),
+answered by tapping one of 3 pictures — voice asks, child taps, no reading
+required. Wrong taps just invite another try, so every session ends 3-for-3,
+closing on a themed well-done screen. This is the "listening quiz" idea below,
+no longer set aside.
+
+**Also added, same day: 3 simple-addition questions in the rotation**, using
+the animals as counting examples (a worm found then one more; badger cubs
+playing then one more joins; berries on the bush). True to the pre-reader
+design, answers are counted pictures, not numerals — a new `countTile(n,
+drawItem)` helper lays out `n` of any item in a row, reusable for any future
+lesson's own addition questions with its own item art.
+
+**Conor is reviewing the badger version before it goes on the other 13
+lessons.** Once approved, extending it means: pick 4ish fact-question angles
+per animal (what it is vs. lookalikes, where it lives, a behaviour, its food
+is the badger template — not every animal needs all four) plus a couple of
+addition questions with that lesson's own small objects, write the narration
+lines into `audio/lines.json`, render with `audio/rerender_one.py`, and add a
+`quiz` array + `quizDoneClip` to that lesson's `LESSONS` entry, reusing
+existing card/scene art for
+choices wherever a natural decoy already exists in another lesson (as the
+badger version does throughout) rather than drawing new SVG.
+
 ## Beyond content
 
-- **Listening quiz** — voice asks a question, child taps one of three pictures.
-  Audio-only, no reading. Offered early on and set aside.
 - **Find the animal** — hide and seek in the woods, with cheers and gentle
   "try again" audio.
 - **Simpler sentences** — an option to match a school reading scheme, with

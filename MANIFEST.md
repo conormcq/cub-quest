@@ -78,6 +78,106 @@ into the template rather than overwrite it.
 
 Newest first. Append, don't rewrite.
 
+### 2026-08-29 — Claude — added simple-addition questions to the badger quiz
+Conor asked for some simple maths addition questions added to the badger
+quiz's rotation, using the animals as examples. Added 3 new questions to the
+existing pool of 4, so a 3-question session now draws from 7 total.
+
+- **New question type — counting, not numerals.** True to the app's
+  pre-reader, audio-first design, the child counts pictures rather than
+  reading a digit: each answer tile shows a small cluster of items (1–4),
+  and the child picks the tile with the right count. New reusable helper
+  `countTile(n, drawItem)` lays out `n` copies of any item function in a
+  simple row inside the existing tile — generic, so any future lesson's
+  math questions can reuse it with its own item art.
+- **Three questions, small sums (max 1+2), tied to cards Louis already
+  heard**: *"A badger found one worm, then found one more worm. How many
+  worms are there now?"* (1+1=2, using the existing `worm()` shape from the
+  Wiggly Worms card); *"Two badger cubs were playing. One more cub came to
+  join them. How many cubs are there now?"* (2+1=3, using `head()` at a tiny
+  scale — the same trick the `sett()` scene already uses for its three
+  distant badger faces); *"There was one juicy berry on the bush. The badger
+  found two more. How many berries are there now?"* (1+2=3, simple filled
+  dots in the berry colour already used on the Berries and Beetles card).
+  Wrong-answer tiles are off-by-one counts (e.g. correct 2 worms vs. 1 and 3),
+  standard for early addition practice.
+- **3 new audio clips**: `qz_badger_math1/2/3`, same Kokoro `bf_alice`
+  pipeline, gain-matched, word-timed for the read-along, both bitrates —
+  same process as the first 5 quiz clips. `audio/lines.json` is now 191
+  entries.
+- Verified via Playwright across 12 randomized quiz runs: all 7 pool
+  questions surface (confirms the random-3-of-7 draw isn't silently biased
+  toward the original 4), all three count tiles render clearly and distinctly
+  at each count, zero console/page errors. Rebuilt both `build.py` (11.29 MB)
+  and `build_pages.py`.
+- `CACHE` → `cub-quest-v12`.
+- Same as last round: not committed/pushed by Claude — Codex, please commit
+  when convenient.
+
+### 2026-08-29 — Claude — badger quiz feature (badger only — awaiting Conor's review)
+Conor asked for an end-of-lesson "test your knowledge" quiz: after hearing all
+12 cards, a new button on the celebration screen offers 3 random questions
+about the animal, answered by tapping one of 3 pictures, with a themed
+well-done screen for getting all 3 right. **Scoped to badgers only for now —
+he wants to review before it goes on the other 13 lessons.**
+
+- **New screen, `#quiz`**, a fixed overlay above the celebration screen
+  (`z-index:65`) with its own safe-area padding, progress moons, read-along
+  question text (reusing the same word-by-word highlight machinery as the
+  card screen), a 3-across image-choice grid, and a completion sub-state.
+- **Question pool of 4 for badgers**, 3 drawn at random each time
+  (`qz_badger_which/home/daynight/eat`, each with 3 image choices, one
+  correct): *"Can you find the badger?"* (badger vs. fox vs. hedgehog, reusing
+  the existing head/foxHead/hedgehog illustrators), *"Where does a badger
+  sleep?"* (the existing `sett()` scene vs. `bat_roost()` vs. `hh_nest()` —
+  genuine decoys borrowed from other lessons), *"Is a badger awake in the
+  daytime, or at night?"* (the existing `night()` card scene vs. two new small
+  compositions — a bright sun-and-sky decoy, and a close, closed-eyed
+  underground portrait, kept visually distinct from the `sett()` art used in
+  the *home* question so the same picture never means two different things
+  in one sitting), and *"What does a badger like to eat?"* (the existing
+  `worms()` scene, textually confirmed correct against `lines.json`, vs. a
+  new fish/pond decoy and a moth decoy borrowed from the moth lesson's `moth()`
+  illustrator). No new global SVG helpers were needed — every choice reuses
+  an existing scene function or a small inline composition scoped to the quiz
+  data itself.
+- **5 new audio clips**: `qz_badger_which`, `qz_badger_home`,
+  `qz_badger_daynight`, `qz_badger_eat` (the spoken questions, word-timed and
+  read-along-highlighted same as any card) and `qz_badger_done` (the
+  completion narration, spoken but not word-highlighted — same pattern as the
+  existing `party_*` clips). Added to `audio/lines.json` and rendered with the
+  same Kokoro `bf_alice` pipeline, gain-matched per clip, both `audio/*.mp3`
+  (40 kbps) and `audio/lo/*.mp3` (24 kbps). Both build scripts' word-timing
+  filter now also excludes `qz_*_done` keys, matching how `party_*` is
+  already excluded.
+- **Answering model**: tapping the correct image chimes, dims the other two,
+  and advances after a beat; tapping wrong gives a gentle shake and a soft
+  tone with **no penalty and no advance** — it just invites another try. That
+  means a session always ends 3-for-3; the completion screen reads "You got
+  all 3 right! Three cheers for a clever cub!" over the lesson's own hero
+  illustration and fanfare.
+- **Exits**: the quiz has the same two-exit pattern as the rest of the app
+  (step back to the celebration screen, or Louis all the way home), including
+  Escape-key support. Found and fixed two layout bugs from copying that
+  header/exit-row markup into the new screen: `.detail-top` and
+  `.party-exits`' flex layout were scoped to `#detail`/`#party` specifically
+  in the CSS, so inside `#quiz` they silently fell back to block layout
+  (buttons stacked instead of sitting in a row). Added the equivalent
+  `#quiz`-scoped rules; `.again`'s honey-pill styling had the same problem
+  and now also matches on `#quiz .again`.
+- Verified via Playwright: full flow end-to-end (start → 12 cards → party →
+  quiz button appears → 3 questions with a deliberate wrong tap before the
+  right one on each → completion screen → all three exits), zero console/page
+  errors including with real (unmuted) audio playback. Rebuilt both
+  `build.py` (11.21 MB, under the 16 MB cap) and `build_pages.py`.
+- `CACHE` → `cub-quest-v11`.
+- **Not yet synced/committed as of this entry** — Conor asked that whoever's
+  already at a Terminal (Codex) commit changes rather than round-tripping
+  through his own shell, same as the last round. Files will be synced into
+  the working tree (this doc excluded from the bulk sync — merged by hand
+  instead, since you were mid-edit above) but not committed or pushed by
+  Claude.
+
 ### 2026-08-29 — Codex — voice manifest synchronized; listening gate remains
 - Claude synchronized `cub-quest-voice/audio/lines.json` during final QA. It
   now has all 183 live clip IDs, including the 48 coastal facts and four coastal
@@ -90,6 +190,13 @@ Newest first. Append, don't rewrite.
   `voice_out/check_*.wav` and the badger chapter. Automated checks cannot judge
   whether the clone sounds like him or whether the special Irish words and
   sound effects are pronounced acceptably.
+
+**Note from Claude, 2026-08-29:** the badger quiz feature above adds 5 new
+narration keys (`qz_badger_*`) that won't exist yet in the Chatterbox
+workspace's `lines.json`. Not urgent while the render is paused on Conor's
+listening review anyway — just flagging it so the next full-render sync
+doesn't come up 5 short. Happy to push the updated manifest over when the
+listening gate clears.
 
 ### 2026-08-29 — Codex — complete timed Chatterbox badger chapter staged
 - Finished all 12 badger narration clips in
@@ -311,29 +418,43 @@ his. **Files are synced into the working tree but not committed or pushed.**
 
 ## Current state
 
-- **14 lessons, 168 cards, 183 audio clips** (`welcome` is a 184th, dormant clip)
+- **14 lessons, 168 cards, 191 audio clips** (183 lesson/celebration clips +
+  8 badger quiz clips [5 fact questions/done + 3 new addition questions];
+  `welcome` is a 192nd, dormant clip)
 - Voice: Kokoro-82M `bf_alice`, 40 kbps mono MP3
-- Pages bundle ~13.7 MB; `index.html` ~311 KB
-- Inline builds **11.06 MB** against the 16 MB ceiling, via `audio/lo/` + the
+- Pages bundle ~13.96 MB; `index.html` ~326 KB
+- Inline builds **11.29 MB** against the 16 MB ceiling, via `audio/lo/` + the
   dropped welcome clip
-- `CACHE` → `cub-quest-v9`
+- `CACHE` → `cub-quest-v12`
+- **New this round: simple-addition questions in the badger quiz's rotation**
+  (counting pictures, not numerals — see the top change-log entry). The quiz
+  as a whole is still badgers only, awaiting Conor's review before it goes on
+  the other 13 lessons.
 - Live: `https://claude.ai/code/artifact/0283155d-e719-4099-8301-a977550fdd0f`
-  — **not yet republished this round**: this session's network settings block
-  reading back the current published artifact, so the v9 merge is built and
-  synced but not on the public artifact link yet. Not urgent — GitHub Pages is
-  the primary deployment.
-- Repo: `github.com/conormcq/cub-quest`, branch `main`. Before this entry, the
-  coastal chapter + Codex's two hand-edits were already committed and pushed
-  (confirmed via `git log`/`git status`) — so the "outstanding push" from
-  earlier sessions had in fact already happened. **This sync adds new
-  uncommitted local changes** (the v9 merge above) that still need a commit +
-  push.
-- **Also found a stray `.git/index.lock`** on the shared Mac folder — harmless
-  to current state, but it will block the next `git add`/`commit` with a
-  "file exists" error until removed. Claude cannot delete it (the mount
-  forbids deletion); run this first:
-  ```sh
-  cd ~/"Personal Projects"/cub-quest
-  rm -f .git/index.lock
-  git add -A && git commit -m "Merge Codex's puffin/dolphin polish + welcome-narration removal into source; fix stale subtitle" && git push
-  ```
+  — status of this link is unconfirmed this round (not re-checked); GitHub
+  Pages remains the primary deployment.
+- Repo: `github.com/conormcq/cub-quest`, branch `main`. Working tree was clean
+  (all previous rounds committed and pushed by Codex) before this sync.
+
+---
+
+## ⚠️ Stray `.git/index.lock`, 2026-08-29 (post-quiz sync)
+
+Running read-only `git status`/`git log` from Claude's sandbox to check for
+concurrent edits before this sync left behind `.git/index.lock` — apparently
+even a read-only git command can leave one in this sandboxed mount if the
+shell is torn down before git releases it. Confirmed the file is empty (a
+dead lock, not an in-progress operation) but Claude cannot delete it (the
+mount forbids deletion). It will block the next `git add`/`commit` with a
+"file exists" error until removed:
+
+```sh
+cd ~/"Personal Projects"/cub-quest
+rm -f .git/index.lock
+git add -A && git commit -m "Add badger quiz feature; sync voice-manifest note" && git push
+```
+
+Noting for the record: Claude's own established rule is to never run `git`
+in this mounted folder for exactly this reason, and slipped this round by
+running status/log checks before the sync. Sticking to `ls`/`cat`/`grep` for
+pre-sync checks from here on.

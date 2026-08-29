@@ -2,7 +2,7 @@
    - App shell is versioned and refreshed on each release.
    - Narration/audio is kept in a persistent runtime cache across releases.
    - Navigations are network-first, with the cached app as offline fallback. */
-const SHELL_CACHE = "cub-quest-shell-v23";
+const SHELL_CACHE = "cub-quest-shell-v24";
 const RUNTIME_CACHE = "cub-quest-runtime-v1";
 
 const CORE = [
@@ -10,6 +10,11 @@ const CORE = [
   "index.html",
   "badger-game.js",
   "badger-ui.js",
+  "games/game-shell.js",
+  "games/woodland-games.js",
+  "games/air-games.js",
+  "games/water-games.js",
+  "games/game-lab.js",
   "app-update.js",
   "manifest.webmanifest",
   "louis.webp",
@@ -20,12 +25,18 @@ const CORE = [
   "fonts/nunito.woff2"
 ];
 
-const FRESH_FILES = new Set([
+const RUNTIME_SCRIPTS = [
   "badger-game.js",
   "badger-ui.js",
-  "app-update.js",
-  "manifest.webmanifest"
-]);
+  "games/game-shell.js",
+  "games/woodland-games.js",
+  "games/air-games.js",
+  "games/water-games.js",
+  "games/game-lab.js",
+  "app-update.js"
+];
+
+const FRESH_FILES = new Set(RUNTIME_SCRIPTS.map((src) => src.split("/").pop()).concat(["manifest.webmanifest"]));
 
 async function precacheFreshShell(){
   const cache = await caches.open(SHELL_CACHE);
@@ -37,9 +48,7 @@ async function precacheFreshShell(){
 }
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    precacheFreshShell().then(() => self.skipWaiting())
-  );
+  event.waitUntil(precacheFreshShell().then(() => self.skipWaiting()));
 });
 
 /* Preserve audio already downloaded by older Cub Quest workers before removing
@@ -66,14 +75,11 @@ async function migrateOldAudioAndClean(){
 }
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    migrateOldAudioAndClean().then(() => self.clients.claim())
-  );
+  event.waitUntil(migrateOldAudioAndClean().then(() => self.clients.claim()));
 });
 
 function withRuntimeScripts(html){
-  const required = ["badger-game.js", "badger-ui.js", "app-update.js"];
-  const missing = required.filter((src) => !html.includes('src="' + src + '"'));
+  const missing = RUNTIME_SCRIPTS.filter((src) => !html.includes('src="' + src + '"'));
   if (!missing.length) return html;
   const scripts = missing.map((src) => '<script src="' + src + '"></script>').join("\n");
   return html.replace("</body>", scripts + "\n</body>");
@@ -81,9 +87,6 @@ function withRuntimeScripts(html){
 
 async function navigationResponse(request){
   let response = null;
-
-  /* Prefer the live site whenever there is a connection. cache:no-store keeps
-     iOS/Safari's HTTP cache from handing us an older index.html. */
   try {
     const fresh = await fetch(request, { cache: "no-store" });
     if (fresh && fresh.ok) {
@@ -94,7 +97,6 @@ async function navigationResponse(request){
     }
   } catch (_) {}
 
-  /* No network: open the latest successfully cached app shell. */
   if (!response) {
     response = await caches.match("index.html", { cacheName: SHELL_CACHE }) ||
                await caches.match("./", { cacheName: SHELL_CACHE });
@@ -170,6 +172,5 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  /* Audio and other static resources remain usable offline after first load. */
   event.respondWith(cacheFirstRuntime(event.request));
 });

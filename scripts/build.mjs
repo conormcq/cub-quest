@@ -31,13 +31,14 @@ for (const path of [
   await cp(join(root, path), join(client, path), { recursive: true });
 }
 
-// Load game runtimes, all-access quizzes, iOS audio unlock, and update manager.
+// Load game runtimes, game SFX, visual quizzes, iOS audio unlock, and update manager.
 const indexPath = join(client, "index.html");
 const indexHtml = await readFile(indexPath, "utf8");
 const extraScripts = [
   "badger-game.js",
   "badger-ui.js",
   "games/game-shell.js",
+  "games/game-sfx.js",
   "games/woodland-games.js",
   "games/air-games.js",
   "games/water-games.js",

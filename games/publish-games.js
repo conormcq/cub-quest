@@ -1,4 +1,4 @@
-/* Cub Quest — publish animal mini-games strictly as the final lesson-grid tile. */
+/* Cub Quest — publish every animal mini-game as the final lesson-grid tile. */
 (function(){
   "use strict";
 
@@ -7,16 +7,16 @@
     fox:"fox",foxes:"fox",
     bat:"bat",bats:"bat",
     hedgehog:"hedgehog",hedgehogs:"hedgehog",
-    barnowl:"barn-owl","barn-owl":"barn-owl","barn owl":"barn-owl","barn owls":"barn-owl",
+    owl:"barn-owl",barnowl:"barn-owl","barn-owl":"barn-owl","barn owl":"barn-owl","barn owls":"barn-owl",
     otter:"otter",otters:"otter",
-    pinemarten:"pine-marten","pine-marten":"pine-marten","pine marten":"pine-marten","pine martens":"pine-marten",
+    marten:"pine-marten",pinemarten:"pine-marten","pine-marten":"pine-marten","pine marten":"pine-marten","pine martens":"pine-marten",
     stoat:"stoat",stoats:"stoat",
     frog:"frog",frogs:"frog",
     moth:"moth",moths:"moth",
-    greyseal:"grey-seal","grey-seal":"grey-seal","grey seal":"grey-seal","grey seals":"grey-seal",
+    seal:"grey-seal",greyseal:"grey-seal","grey-seal":"grey-seal","grey seal":"grey-seal","grey seals":"grey-seal",
     puffin:"puffin",puffins:"puffin",
     dolphin:"dolphin",dolphins:"dolphin",
-    baskingshark:"basking-shark","basking-shark":"basking-shark","basking shark":"basking-shark","basking sharks":"basking-shark"
+    shark:"basking-shark",baskingshark:"basking-shark","basking-shark":"basking-shark","basking shark":"basking-shark","basking sharks":"basking-shark"
   };
 
   var icons={badger:"🦡",fox:"🦊",bat:"🦇",hedgehog:"🦔","barn-owl":"🦉",otter:"🦦","pine-marten":"🌲",stoat:"🐾",frog:"🐸",moth:"🦋","grey-seal":"🦭",puffin:"🐧",dolphin:"🐬","basking-shark":"🦈"};
@@ -35,6 +35,7 @@
   function currentGameId(){
     var l=window.lesson||window.currentLesson||null;
     var vals=l?[l.id,l.slug,l.name,l.title]:[];
+    if(!vals.length){var name=document.getElementById("lessonName");if(name)vals=[name.textContent];}
     for(var i=0;i<vals.length;i++){
       var n=norm(vals[i]),compact=n.replace(/[ -]/g,"");
       if(aliases[n])return aliases[n];
@@ -58,46 +59,26 @@
     if(window.CubQuestGames) window.CubQuestGames.open(id);
   }
 
-  function removePublishedTiles(){
-    document.querySelectorAll(".cq-published-game").forEach(function(el){el.remove();});
-  }
+  function removePublishedTiles(){document.querySelectorAll(".cq-published-game").forEach(function(el){el.remove();});}
 
   function syncTile(){
     var screen=document.getElementById("grid");
-    if(!screen||!screen.classList.contains("on")){
-      removePublishedTiles();
-      return;
-    }
-    var cards=screen.querySelector(".cards");
-    if(!cards)return;
-
-    var id=currentGameId();
-    if(!id){removePublishedTiles();return;}
-    var game=gameInfo(id);
-    if(!game){removePublishedTiles();return;}
-
+    if(!screen||!screen.classList.contains("on")){removePublishedTiles();return;}
+    var cards=screen.querySelector(".cards");if(!cards)return;
+    var id=currentGameId();if(!id){removePublishedTiles();return;}
+    var game=gameInfo(id);if(!game){removePublishedTiles();return;}
     var tile=cards.querySelector('.cq-published-game[data-game-id="'+id+'"]');
     cards.querySelectorAll(".cq-published-game").forEach(function(el){if(el!==tile)el.remove();});
-
     if(!tile){
-      tile=document.createElement("button");
-      tile.type="button";
-      tile.className="card cq-published-game";
-      tile.dataset.gameId=id;
+      tile=document.createElement("button");tile.type="button";tile.className="card cq-published-game";tile.dataset.gameId=id;
       tile.setAttribute("aria-label","Play "+game.title+". "+game.goal);
       tile.innerHTML='<span class="cq-game-art" aria-hidden="true">'+(icons[id]||"🎮")+'</span><span class="cq-game-meta"><b>'+game.title+'</b><small>Play the '+game.title+' game</small></span>';
       tile.addEventListener("click",function(){launch(id);});
     }
-
-    /* Always force the game to be the very last tile. For Badger this means it
-       comes after the 12 lesson cards and the quiz tile. */
-    if(cards.lastElementChild!==tile) cards.appendChild(tile);
+    if(cards.lastElementChild!==tile)cards.appendChild(tile);
   }
 
-  var queued=false;
-  function queue(){if(queued)return;queued=true;requestAnimationFrame(function(){queued=false;syncTile();});}
+  var queued=false;function queue(){if(queued)return;queued=true;requestAnimationFrame(function(){queued=false;syncTile();});}
   new MutationObserver(queue).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:["class"]});
-  window.addEventListener("cubquest-games-ready",queue);
-  window.addEventListener("pageshow",queue);
-  queue();
+  window.addEventListener("cubquest-games-ready",queue);window.addEventListener("pageshow",queue);queue();
 })();

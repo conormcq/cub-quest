@@ -1,8 +1,9 @@
-/* Cub Quest — publish animal mini-games inside their normal lesson grids. */
+/* Cub Quest — publish animal mini-games strictly as the final lesson-grid tile. */
 (function(){
   "use strict";
 
   var aliases={
+    badger:"badger",badgers:"badger",
     fox:"fox",foxes:"fox",
     bat:"bat",bats:"bat",
     hedgehog:"hedgehog",hedgehogs:"hedgehog",
@@ -18,7 +19,7 @@
     baskingshark:"basking-shark","basking-shark":"basking-shark","basking shark":"basking-shark","basking sharks":"basking-shark"
   };
 
-  var icons={fox:"🦊",bat:"🦇",hedgehog:"🦔","barn-owl":"🦉",otter:"🦦","pine-marten":"🌲",stoat:"🐾",frog:"🐸",moth:"🦋","grey-seal":"🦭",puffin:"🐧",dolphin:"🐬","basking-shark":"🦈"};
+  var icons={badger:"🦡",fox:"🦊",bat:"🦇",hedgehog:"🦔","barn-owl":"🦉",otter:"🦦","pine-marten":"🌲",stoat:"🐾",frog:"🐸",moth:"🦋","grey-seal":"🦭",puffin:"🐧",dolphin:"🐬","basking-shark":"🦈"};
 
   var style=document.createElement("style");
   style.textContent=`
@@ -42,31 +43,59 @@
     return null;
   }
 
-  function addTile(){
-    if(!window.CubQuestGames)return;
+  function gameInfo(id){
+    if(id==="badger") return {id:"badger",title:"Badger Dash",goal:"Find 10 wriggly worms!",legacy:true};
+    if(!window.CubQuestGames)return null;
+    return window.CubQuestGames.list().filter(function(g){return g.id===id;})[0]||null;
+  }
+
+  function launch(id){
+    if(id==="badger"){
+      var legacy=document.getElementById("badgerGameBtn");
+      if(legacy) legacy.click();
+      return;
+    }
+    if(window.CubQuestGames) window.CubQuestGames.open(id);
+  }
+
+  function removePublishedTiles(){
+    document.querySelectorAll(".cq-published-game").forEach(function(el){el.remove();});
+  }
+
+  function syncTile(){
     var screen=document.getElementById("grid");
-    if(!screen||!screen.classList.contains("on"))return;
+    if(!screen||!screen.classList.contains("on")){
+      removePublishedTiles();
+      return;
+    }
     var cards=screen.querySelector(".cards");
     if(!cards)return;
-    var old=cards.querySelector(".cq-published-game");
-    if(old)old.remove();
 
     var id=currentGameId();
-    if(!id)return;
-    var game=window.CubQuestGames.list().filter(function(g){return g.id===id;})[0];
-    if(!game)return;
+    if(!id){removePublishedTiles();return;}
+    var game=gameInfo(id);
+    if(!game){removePublishedTiles();return;}
 
-    var tile=document.createElement("button");
-    tile.type="button";
-    tile.className="card cq-published-game";
-    tile.setAttribute("aria-label","Play "+game.title+". "+game.goal);
-    tile.innerHTML='<span class="cq-game-art" aria-hidden="true">'+(icons[id]||"🎮")+'</span><span class="cq-game-meta"><b>'+game.title+'</b><small>Play the '+game.title+' game</small></span>';
-    tile.addEventListener("click",function(){window.CubQuestGames.open(id);});
-    cards.appendChild(tile);
+    var tile=cards.querySelector('.cq-published-game[data-game-id="'+id+'"]');
+    cards.querySelectorAll(".cq-published-game").forEach(function(el){if(el!==tile)el.remove();});
+
+    if(!tile){
+      tile=document.createElement("button");
+      tile.type="button";
+      tile.className="card cq-published-game";
+      tile.dataset.gameId=id;
+      tile.setAttribute("aria-label","Play "+game.title+". "+game.goal);
+      tile.innerHTML='<span class="cq-game-art" aria-hidden="true">'+(icons[id]||"🎮")+'</span><span class="cq-game-meta"><b>'+game.title+'</b><small>Play the '+game.title+' game</small></span>';
+      tile.addEventListener("click",function(){launch(id);});
+    }
+
+    /* Always force the game to be the very last tile. For Badger this means it
+       comes after the 12 lesson cards and the quiz tile. */
+    if(cards.lastElementChild!==tile) cards.appendChild(tile);
   }
 
   var queued=false;
-  function queue(){if(queued)return;queued=true;requestAnimationFrame(function(){queued=false;addTile();});}
+  function queue(){if(queued)return;queued=true;requestAnimationFrame(function(){queued=false;syncTile();});}
   new MutationObserver(queue).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:["class"]});
   window.addEventListener("cubquest-games-ready",queue);
   window.addEventListener("pageshow",queue);

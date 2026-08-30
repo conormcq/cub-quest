@@ -2,7 +2,7 @@
    - App shell is versioned and refreshed on each release.
    - Narration/audio is kept in a persistent runtime cache across releases.
    - Navigations are network-first, with the cached app as offline fallback. */
-const SHELL_CACHE = "cub-quest-shell-v25";
+const SHELL_CACHE = "cub-quest-shell-v26";
 const RUNTIME_CACHE = "cub-quest-runtime-v1";
 
 const CORE = [

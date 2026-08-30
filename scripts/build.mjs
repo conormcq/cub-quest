@@ -17,6 +17,7 @@ for (const path of [
   "badger-ui.js",
   "app-update.js",
   "ios-audio-unlock.js",
+  "all-access.js",
   "games",
   "manifest.webmanifest",
   "sw.js",
@@ -30,9 +31,7 @@ for (const path of [
   await cp(join(root, path), join(client, path), { recursive: true });
 }
 
-// Load game runtimes and publish each animal's game in its normal lesson grid.
-// The iOS unlock script primes the real MP3 player for Home Screen installs.
-// Game Lab remains an optional developer launcher controlled by ?games=1.
+// Load game runtimes, all-access quizzes, iOS audio unlock, and update manager.
 const indexPath = join(client, "index.html");
 const indexHtml = await readFile(indexPath, "utf8");
 const extraScripts = [
@@ -44,6 +43,7 @@ const extraScripts = [
   "games/water-games.js",
   "games/publish-games.js",
   "games/game-lab.js",
+  "all-access.js",
   "ios-audio-unlock.js",
   "app-update.js",
 ].map((src) => `<script src="${src}"></script>`).join("\n");

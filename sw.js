@@ -3,7 +3,7 @@
    - Narration/audio is kept in a persistent runtime cache across releases.
    - Navigations are network-first, with the cached app as offline fallback.
    - Audio has a dedicated Range-aware path for iOS/Safari media playback. */
-const SHELL_CACHE = "cub-quest-shell-v27";
+const SHELL_CACHE = "cub-quest-shell-v28";
 const RUNTIME_CACHE = "cub-quest-runtime-v1";
 
 const CORE = [
@@ -17,6 +17,7 @@ const CORE = [
   "games/water-games.js",
   "games/publish-games.js",
   "games/game-lab.js",
+  "ios-audio-unlock.js",
   "app-update.js",
   "manifest.webmanifest",
   "louis.webp",
@@ -36,6 +37,7 @@ const RUNTIME_SCRIPTS = [
   "games/water-games.js",
   "games/publish-games.js",
   "games/game-lab.js",
+  "ios-audio-unlock.js",
   "app-update.js"
 ];
 

@@ -1,8 +1,9 @@
 /* Cub Quest offline/update strategy.
    - App shell is versioned and refreshed on each release.
    - Narration/audio is kept in a persistent runtime cache across releases.
-   - Navigations are network-first, with the cached app as offline fallback. */
-const SHELL_CACHE = "cub-quest-shell-v26";
+   - Navigations are network-first, with the cached app as offline fallback.
+   - Audio has a dedicated Range-aware path for iOS/Safari media playback. */
+const SHELL_CACHE = "cub-quest-shell-v27";
 const RUNTIME_CACHE = "cub-quest-runtime-v1";
 
 const CORE = [
@@ -69,7 +70,7 @@ async function migrateOldAudioAndClean(){
       const url = new URL(request.url);
       if (url.pathname.includes("/audio/")) {
         const response = await oldCache.match(request);
-        if (response) await runtime.put(request, response);
+        if (response && response.status === 200) await runtime.put(new Request(request.url), response);
       }
     }
     await caches.delete(key);
@@ -146,7 +147,7 @@ async function cacheFirstRuntime(request){
 
   try {
     const response = await fetch(request);
-    if (response && response.ok) {
+    if (response && response.ok && response.status === 200) {
       const runtime = await caches.open(RUNTIME_CACHE);
       await runtime.put(request, response.clone());
     }
@@ -154,6 +155,77 @@ async function cacheFirstRuntime(request){
   } catch (_) {
     return new Response("", { status: 504 });
   }
+}
+
+async function cacheFullAudio(url){
+  try {
+    const fullRequest = new Request(url, { method: "GET", cache: "no-store" });
+    const full = await fetch(fullRequest);
+    if (full && full.ok && full.status === 200) {
+      const runtime = await caches.open(RUNTIME_CACHE);
+      await runtime.put(new Request(url), full.clone());
+    }
+  } catch (_) {}
+}
+
+async function rangedFromCachedAudio(request){
+  const range = request.headers.get("Range");
+  if (!range) return null;
+
+  const cached = await caches.match(new Request(request.url), {
+    cacheName: RUNTIME_CACHE,
+    ignoreSearch: true
+  });
+  if (!cached || cached.status !== 200) return null;
+
+  const match = /^bytes=(\d+)-(\d*)$/i.exec(range.trim());
+  if (!match) return cached;
+
+  const buffer = await cached.arrayBuffer();
+  const total = buffer.byteLength;
+  const start = Math.min(parseInt(match[1], 10), Math.max(total - 1, 0));
+  const requestedEnd = match[2] ? parseInt(match[2], 10) : total - 1;
+  const end = Math.min(requestedEnd, total - 1);
+  if (end < start) return new Response(null, {
+    status: 416,
+    headers: { "Content-Range": "bytes */" + total }
+  });
+
+  const headers = new Headers(cached.headers);
+  headers.set("Accept-Ranges", "bytes");
+  headers.set("Content-Range", "bytes " + start + "-" + end + "/" + total);
+  headers.set("Content-Length", String(end - start + 1));
+  headers.set("Cache-Control", "no-store");
+  return new Response(buffer.slice(start, end + 1), { status: 206, headers });
+}
+
+async function audioResponse(request, event){
+  /* Safari/iOS commonly requests MP3s using Range. Let the origin answer that
+     request when online; this avoids serving an incompatible cached response. */
+  try {
+    const fresh = await fetch(request, { cache: "no-store" });
+    if (fresh && fresh.ok) {
+      if (request.headers.has("Range")) {
+        if (event) event.waitUntil(cacheFullAudio(request.url));
+      } else if (fresh.status === 200) {
+        const runtime = await caches.open(RUNTIME_CACHE);
+        if (event) event.waitUntil(runtime.put(new Request(request.url), fresh.clone()));
+      }
+      return fresh;
+    }
+  } catch (_) {}
+
+  /* Offline: synthesize the byte-range response Safari expects from a cached
+     full MP3. Non-range requests can use the full cached response directly. */
+  if (request.headers.has("Range")) {
+    const partial = await rangedFromCachedAudio(request);
+    if (partial) return partial;
+  }
+
+  return (await caches.match(new Request(request.url), {
+    cacheName: RUNTIME_CACHE,
+    ignoreSearch: true
+  })) || new Response("", { status: 504 });
 }
 
 self.addEventListener("fetch", (event) => {
@@ -166,6 +238,11 @@ self.addEventListener("fetch", (event) => {
 
   if (isNavigation) {
     event.respondWith(navigationResponse(event.request));
+    return;
+  }
+
+  if (url.origin === self.location.origin && url.pathname.includes("/audio/") && url.pathname.endsWith(".mp3")) {
+    event.respondWith(audioResponse(event.request, event));
     return;
   }
 

@@ -3,7 +3,7 @@
    - Narration/audio is kept in a persistent runtime cache across releases.
    - Navigations are network-first, with the cached app as offline fallback.
    - Audio has a dedicated Range-aware path for iOS/Safari media playback. */
-const SHELL_CACHE = "cub-quest-shell-v30";
+const SHELL_CACHE = "cub-quest-shell-v31";
 const RUNTIME_CACHE = "cub-quest-runtime-v1";
 
 const CORE = [
@@ -27,7 +27,9 @@ const CORE = [
   "icon-192.png",
   "icon-512.png",
   "fonts/grandstander.woff2",
-  "fonts/nunito.woff2"
+  "fonts/nunito.woff2",
+  "audio/lines.json",
+  "audio/timings.json"
 ];
 
 const RUNTIME_SCRIPTS = [
@@ -52,6 +54,16 @@ async function precacheFreshShell(){
   await Promise.all(CORE.map(async (path) => {
     const response = await fetch(path, { cache: "reload" });
     if (!response || !response.ok) throw new Error("Failed to precache " + path);
+    await cache.put(path, response.clone());
+  }));
+  const linesResponse = await fetch("audio/lines.json", { cache: "reload" });
+  if (!linesResponse.ok) throw new Error("Failed to load the narration manifest");
+  const lines = await linesResponse.json();
+  const gameAudio = Object.keys(lines).filter((key) => key.startsWith("game_"));
+  await Promise.all(gameAudio.map(async (key) => {
+    const path = "audio/" + key + ".mp3";
+    const response = await fetch(path, { cache: "reload" });
+    if (!response.ok) throw new Error("Failed to precache " + path);
     await cache.put(path, response.clone());
   }));
 }

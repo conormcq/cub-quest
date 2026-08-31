@@ -3,7 +3,7 @@
    - Narration/audio is kept in a persistent runtime cache across releases.
    - Navigations are network-first, with the cached app as offline fallback.
    - Audio has a dedicated Range-aware path for iOS/Safari media playback. */
-const SHELL_CACHE = "cub-quest-shell-v32";
+const SHELL_CACHE = "cub-quest-shell-v33";
 const RUNTIME_CACHE = "cub-quest-runtime-v1";
 
 const CORE = [

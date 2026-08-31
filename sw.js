@@ -3,7 +3,7 @@
    - Narration/audio is kept in a persistent runtime cache across releases.
    - Navigations are network-first, with the cached app as offline fallback.
    - Audio has a dedicated Range-aware path for iOS/Safari media playback. */
-const SHELL_CACHE = "cub-quest-shell-v31";
+const SHELL_CACHE = "cub-quest-shell-v32";
 const RUNTIME_CACHE = "cub-quest-runtime-v1";
 
 const CORE = [
@@ -59,8 +59,8 @@ async function precacheFreshShell(){
   const linesResponse = await fetch("audio/lines.json", { cache: "reload" });
   if (!linesResponse.ok) throw new Error("Failed to load the narration manifest");
   const lines = await linesResponse.json();
-  const gameAudio = Object.keys(lines).filter((key) => key.startsWith("game_"));
-  await Promise.all(gameAudio.map(async (key) => {
+  const activityAudio = Object.keys(lines).filter((key) => /^(game_|qz_)/.test(key));
+  await Promise.all(activityAudio.map(async (key) => {
     const path = "audio/" + key + ".mp3";
     const response = await fetch(path, { cache: "reload" });
     if (!response.ok) throw new Error("Failed to precache " + path);

@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "sync:game-audio": "node scripts/sync-game-narration.mjs"
+    "sync:game-audio": "node scripts/sync-chatterbox-narration.mjs game_",
+    "sync:quiz-audio": "node scripts/sync-chatterbox-narration.mjs qz_"
   }
 }

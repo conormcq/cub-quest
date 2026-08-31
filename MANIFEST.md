@@ -78,6 +78,83 @@ into the template rather than overwrite it.
 
 Newest first. Append, don't rewrite.
 
+### 2026-08-31 — Claude — narrated the 13 all-access quizzes (were silent)
+Conor asked me to check the latest GitHub source and add any missing quiz
+narration. Cloned `github.com/conormcq/cub-quest` fresh (shallow, `main`) to
+work from the real current state rather than my stale local copy — good
+thing too, since a lot had shipped since my last sync: `all-access.js`,
+the `games/` package, `badger-game.js`/`badger-ui.js`, the shell/runtime
+service-worker split, all invisible to me until I looked.
+
+- **Found the gap**: `all-access.js` (Foxes through Basking Sharks — 13
+  lessons, Badgers excluded since it has its own real quiz) dispatches a
+  `cubquest-quiz-voice` custom event for every question and for the
+  completion screen, but nothing in the codebase listens for it or defines
+  the alternate `window.CubQuestQuizVoice` hook it also checks for. Since
+  these quizzes show only text captions (no picture-first design, no
+  read-along), a pre-reader literally cannot use them without a narrated
+  question — the core accessibility premise of every other screen in the
+  app. Confirmed with `grep -rn "cubquest-quiz-voice\|CubQuestQuizVoice"`
+  across the repo: only the two dispatch lines in `all-access.js` itself.
+- **Added 40 new narration lines to `audio/lines.json`**: the 3 quiz
+  questions per animal (13 × 3 = 39), copied verbatim from `all-access.js`'s
+  `BANK` object so the spoken text matches the on-screen text exactly, plus
+  one new shared completion line, `qz_generic_done` ("Well done! You got
+  them all right. You are a clever cub!") — one clip reused across all 13
+  animals rather than 13 near-duplicate lines, to keep the batch a
+  reasonable size. Matches the badger quiz's own narration scope: the
+  question is spoken, right/wrong taps stay silent-but-colour-coded (no
+  attempt to record every possible answer-choice label as speech — that's
+  a different, much larger undertaking and not what "missing narration"
+  seemed to be asking for).
+- **Rendered all 40 with Kokoro `bf_alice`** (same stopgap pipeline as the
+  three badger questions I added two days ago, before I knew Chatterbox had
+  taken over) — matching mp3 + timing entries in both `audio/lines.json`
+  and `audio/timings.json`. **These are not yet Chatterbox** — same
+  handoff as before: the text is in `lines.json` now, ready for your next
+  render pass. `audio/lines.json` and `audio/timings.json` are now 234
+  entries (194 → 234).
+- **Rewired `all-access.js`'s `voice(detail)`** to actually play the right
+  clip: a new `NAME_TO_ID` map (BANK's display names → lesson ids) resolves
+  `"question"` events to `audio/qz_<id>_q<n>.mp3`, `"complete"` events to
+  the shared `qz_generic_done.mp3`, and `"stop"` pauses playback — using one
+  reused `Audio()` element (`quizPlayer()`), same "one player element,
+  swap `.src`" pattern as the main app's own `player`. The original
+  `CustomEvent`/`window.CubQuestQuizVoice` dispatch is still fired
+  afterward, unchanged, so nothing that already hooks either of those loses
+  anything.
+- **Known gaps, not fixed here, out of scope for "add missing narration":**
+  these quizzes don't respect the main app's mute toggle (this module has
+  no access to that state — it's a fully separate bolt-on with its own
+  `Audio()`), there's still no read-along word highlighting on the question
+  text (would need its own `renderWords`/`tick` port), and right/wrong taps
+  have no sound at all, recorded or otherwise (badger's quiz at least has a
+  chime/tone). Flagging in case any of these matter enough to be worth a
+  follow-up.
+- **Also found and left alone**: the local checkout at
+  `~/Personal Projects/cub-quest` (this file's usual sync target) is well
+  behind `origin/main` — no `all-access.js`, no `games/`, `sw.js` still on
+  the old flat `cub-quest-vN` cache name at v19 versus the shell/runtime
+  scheme at v30 on GitHub. I didn't try to reconcile that gap myself (per
+  the standing rule, I don't run `git` in that mount, and I can't tell from
+  outside whether it's a stale worktree, a different branch, or mid-edit) —
+  synced my new files into it anyway since they're purely additive
+  (new mp3s, an updated `lines.json`/`timings.json`, a new `all-access.js`
+  that doesn't exist there yet to conflict with), but **whoever next
+  commits from that folder should `git status`/reconcile against `origin/
+  main` first** — this sync alone won't make any of this live.
+- Verified via Playwright against my own `npm run build` output (added
+  `audio/rerender_one.py` temporarily to render the clips, removed after):
+  every one of the 13 non-badger quizzes narrates its question correctly
+  in order (checked Foxes end-to-end and spot-checked Basking Sharks), the
+  completion line plays and is heard-out, closing the quiz mid-question
+  stops playback immediately, and the badger lesson still shows only its
+  own real quiz tile — `all-access.js`'s tile-builder already skips
+  Badgers, confirmed it still does. Zero console/page errors throughout.
+- Not committed or pushed by me, per the standing arrangement — flagging
+  for Codex, and flagging the stale-mount finding above for a decision on
+  which local checkout is actually current.
+
 ### 2026-08-29 — Codex — quiz restored to the marked 13th grid position
 - Conor clarified with a marked screenshot that the quiz belongs as the next
   square after the twelve fact cards, not as a banner above them.

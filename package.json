@@ -4,6 +4,8 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
+    "sync:quiz-options": "node scripts/sync-quiz-option-lines.mjs --write",
+    "validate:quiz-options": "node scripts/sync-quiz-option-lines.mjs",
     "sync:game-audio": "node scripts/sync-chatterbox-narration.mjs game_",
     "sync:quiz-audio": "node scripts/sync-chatterbox-narration.mjs qz_"
   }

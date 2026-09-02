@@ -600,6 +600,7 @@ button:focus-visible,[tabindex]:focus-visible{
 }
 .qchoice .art{display:block;width:100%;aspect-ratio:1;}
 .qchoice svg{width:100%;height:100%;display:block;}
+.qchoice .qchoice-label{display:block;min-height:2.25em;padding:7px 4px 3px;color:var(--moon);font-weight:950;font-size:clamp(.72rem,2.7vw,.94rem);line-height:1.12;text-align:center;}
 .qchoice:hover{transform:translateY(-4px);border-color:var(--tint,var(--honey));}
 .qchoice:active{transform:scale(.96);}
 .qchoice.correct{
@@ -2854,7 +2855,7 @@ var LESSONS=[
    ]},
    {id:"qz_badger_tidy", choices:[
      {img:function(){ return SCENES.tidy(); }, correct:true, alt:"fresh bedding"},
-     {img:function(){ return SCENES.sett(); }, correct:false, alt:"nothing, just bare earth"},
+     {img:function(){ return SCENES.sett(); }, correct:false, alt:"bare earth"},
      {img:function(){ return SCENES.berries(); }, correct:false, alt:"a pile of berries"}
    ]},
    {id:"qz_badger_sense", choices:[
@@ -3191,10 +3192,11 @@ function markBlocked(){
 function say(id,onDone){
   stopSpeaking();
   speakingKey=id;
-  if(muted || !CLIPS[id]){ if(onDone) onDone(); return; }
+  var clip=CLIPS[id]||(/_options$/.test(id)?"audio/"+id+".mp3":null);
+  if(muted || !clip){ if(onDone) onDone(); return; }
   pendingEnd=onDone||null;
   try{
-    player.src=CLIPS[id];
+    player.src=clip;
     player.currentTime=0;
   }catch(e){ markBlocked(); if(onDone) onDone(); return; }
   setSpeaking(true);
@@ -3443,19 +3445,21 @@ function nextQuizQuestion(){
   $("quizFeedback").textContent="";
   renderQuizMoons();
   var q=quizQs[quizIdx];
-  var choices=shuffle(q.choices);
+  var correct=q.choices.filter(function(c){return c.correct;})[0];
+  var choices=q.choices.filter(function(c){return !c.correct;});
+  choices.splice(lesson.quiz.indexOf(q)%3,0,correct);
   quizChoicesEl.innerHTML="";
   choices.forEach(function(c){
     var b=document.createElement("button");
     b.className="qchoice";
     b.type="button";
     b.setAttribute("aria-label",c.alt);
-    b.innerHTML='<span class="art">'+c.img()+'</span>';
+    b.innerHTML='<span class="art">'+c.img()+'</span><span class="qchoice-label">'+esc(c.alt)+'</span>';
     b.addEventListener("click",function(){ answerQuiz(c.correct,b); });
     quizChoicesEl.appendChild(b);
   });
   renderWords(q.id,qSay);
-  say(q.id);
+  say(q.id,function(){ say(q.id+"_options"); });
 }
 function clearQuizBursts(){
   var bursts=quizEl.querySelectorAll(".quiz-burst");

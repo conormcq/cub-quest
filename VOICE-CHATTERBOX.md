@@ -119,11 +119,14 @@ as an error fallback if a recorded clip cannot be loaded.
 
 ## Quiz narration
 
-All 51 quiz questions and completion prompts use the same approved Chatterbox
-sample as the lessons. Run `npm run sync:quiz-audio` after deliberately
-re-rendering quiz clips; it copies only `qz_` audio and merges only their timing
-entries. The service worker precaches both quiz and game narration so an older
-runtime-cached voice cannot override the current recorded clips offline.
+All 178 quiz clips use the same approved Chatterbox sample as the lessons:
+90 question/completion clips plus 88 short option-list clips. Each question
+plays first and its three on-screen choices are then read in their displayed
+order. Run `npm run sync:quiz-options` whenever answer wording or ordering
+changes, then `npm run sync:quiz-audio` after rendering; the latter copies only
+`qz_` audio and merges only their timing entries. The service worker precaches
+both quiz and game narration so an older runtime-cached voice cannot override
+the current recorded clips offline.
 
 To check current gaps yourself (missing mp3, or missing timings) without git:
 
@@ -210,7 +213,7 @@ are found by listening, not by rule.
 silence), high-pass + shelf EQ, loudness-normalized to -19 LUFS. Don't
 re-cut or replace this file casually — the whole deployed voice is
 conditioned on it, and swapping it changes how every future render sounds
-relative to the 292 existing clips already out in the wild build.
+relative to the 419 deployed clips already out in the wild build.
 
 The 58 game instructions, echo prompts, and milestone facts use the approved
 `reference_new_recording_25.wav` sample and the same Turbo, filtering,

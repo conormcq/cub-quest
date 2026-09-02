@@ -78,6 +78,23 @@ into the template rather than overwrite it.
 
 Newest first. Append, don't rewrite.
 
+### 2026-09-02 — Codex — narrated choices and reviewed answer art
+- Added a matching Chatterbox option-list clip after every quiz question: 88 new clips, raising quiz narration from 90 to 178 clips and the complete narration inventory to 419.
+- Made answer order stable and varied the correct position across questions, so the spoken option order always matches the three visible choices without teaching children to tap the same position.
+- Added visible labels to the native badger picture choices and retained labels on every other quiz, making the answer meaning explicit for children and assistive technology.
+- Reviewed all 264 answer pictures. Every choice now has a literal pictogram or bespoke SVG, with question-specific art for otherwise ambiguous babies, animal names, body features, numbers, and actions.
+- Added `npm run sync:quiz-options` and `npm run validate:quiz-options` to keep narration wording, displayed order, and picture coverage aligned.
+- Bumped the offline shell to `cub-quest-shell-v35`.
+
+### 2026-09-01 — Codex — upgraded every non-badger quiz
+- Expanded Foxes through Basking Sharks from three fixed questions to six-question pools; every play now draws a fresh three-question mix.
+- Added 39 new question clips in the approved Chatterbox voice, synchronized their word timings, and raised the quiz narration manifest from 51 to 90 clips.
+- Added word-by-word question highlighting, three-step progress pips, clearer correct/try-again sound and visual feedback, a reduced-motion-safe sparkle celebration, and a replay button that draws a new mix.
+- Quiz wins now persist locally. A completed animal's quiz tile becomes a trophy and stays completed after an app reload.
+- Kept the richer native badger quiz unchanged. The modular all-access layer continues to unlock that native tile, while supplying the upgraded six-question experience to the other thirteen lessons.
+- Bumped the offline shell to `cub-quest-shell-v34`; the service worker derives its quiz-audio precache list from `audio/lines.json`, so all 90 quiz clips are available offline.
+- Verified all 13 upgraded quiz entry points and answer layouts in-browser, completed a full wrong/right/trophy/reload flow, checked desktop and 390 × 844 layouts, confirmed live highlighting against a newly rendered clip, decoded all 39 new MP3s, and rebuilt successfully with no browser console errors.
+
 ### 2026-08-31 — Claude — narrated the 13 all-access quizzes (were silent)
 Conor asked me to check the latest GitHub source and add any missing quiz
 narration. Cloned `github.com/conormcq/cub-quest` fresh (shallow, `main`) to

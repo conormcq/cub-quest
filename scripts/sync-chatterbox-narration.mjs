@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const voiceRoot = process.env.CUB_QUEST_VOICE_ROOT || join(root, "..", "cub-quest-voice");
 const prefix = process.argv[2];
-const expectedCounts = { game_: 58, qz_: 51 };
+const expectedCounts = { game_: 58, qz_: 178 };
 if (!(prefix in expectedCounts)) throw new Error("Pass game_ or qz_ as the narration prefix");
 
 const appLinesPath = join(root, "audio", "lines.json");
